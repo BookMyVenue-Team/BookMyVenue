@@ -35,3 +35,42 @@ Thumbs.db
 # Misc
 coverage/
 *.log
+
+
+# ==========================================
+# ☕ Spring Boot & Maven Base Defaults
+# ==========================================
+**/target/
+**.target/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven wrapper files (Kept ignored to prevent build rule conflicts)
+**/mvnw
+**/mvnw.cmd
+**/.mvn/wrapper/maven-wrapper.properties
+**/.mvn/wrapper/maven-wrapper.jar
+
+# ==========================================
+# 💻 IDE Configurations (IntelliJ / VS Code / Eclipse)
+# ==========================================
+**/.idea/
+**/*.iml
+**/out/
+**/.vscode/
+**/.project
+**/.classpath
+**/.settings/
+**/.factorypath
+
+# ==========================================
+# 🔒 Environment & OS files
+# ==========================================
+**/.env
+**/.env.local
+**/.DS_Store
+**/Thumbs.db
