@@ -1,0 +1,93 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+  <div class="w-full max-w-md">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
+      <p class="mt-2 text-sm text-gray-600">Join BookMyVenue to find perfect venues</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <app-input
+              label="First Name"
+              placeholder="John"
+              formControlName="firstName"
+              [required]="true"
+              [error]="form.controls.firstName.touched && form.controls.firstName.errors ? 'First name is required' : ''"
+            />
+            <app-input
+              label="Last Name"
+              placeholder="Doe"
+              formControlName="lastName"
+              [required]="true"
+              [error]="form.controls.lastName.touched && form.controls.lastName.errors ? 'Last name is required' : ''"
+            />
+          </div>
+
+          <app-input
+            label="Email Address"
+            type="email"
+            placeholder="you@example.com"
+            formControlName="email"
+            [required]="true"
+            [error]="form.controls.email.touched && form.controls.email.errors ? 'Valid email is required' : ''"
+          />
+
+          <app-input
+            label="Phone Number"
+            type="tel"
+            placeholder="1234567890"
+            formControlName="phone"
+            [required]="true"
+            [error]="form.controls.phone.touched && form.controls.phone.errors ? 'Valid 10-digit phone number is required' : ''"
+          />
+
+          <app-input
+            label="Password"
+            type="password"
+            placeholder="Min 6 characters"
+            formControlName="password"
+            [required]="true"
+            [error]="form.controls.password.touched && form.controls.password.errors ? 'Password must be at least 6 characters' : ''"
+          />
+
+          <app-input
+            label="Confirm Password"
+            type="password"
+            placeholder="Re-enter password"
+            formControlName="confirmPassword"
+            [required]="true"
+            [error]="form.controls.confirmPassword.touched && form.controls.confirmPassword.errors ? 'Passwords must match' : ''"
+          />
+        </div>
+
+        <div class="flex items-center gap-3 mt-4">
+          <input
+            type="checkbox"
+            id="isVendor"
+            formControlName="isVendor"
+            class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
+          />
+          <label for="isVendor" class="text-sm text-gray-700 cursor-pointer select-none">
+            Register as a Vendor (list and manage venues)
+          </label>
+        </div>
+
+        <div class="mt-6">
+          <app-button
+            label="Create Account"
+            type="submit"
+            [loading]="loading()"
+            [fullWidth]="true"
+          />
+        </div>
+      </form>
+
+      <p class="mt-6 text-center text-sm text-gray-600">
+        Already have an account?
+        <a routerLink="/login" class="text-indigo-600 font-medium hover:text-indigo-500">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

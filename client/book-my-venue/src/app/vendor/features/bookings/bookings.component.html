@@ -1,0 +1,46 @@
+<div>
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Bookings</h1>
+  @if (loading()) {
+    <app-loader message="Loading bookings..." />
+  } @else if (bookings().length === 0) {
+    <app-empty-state title="No bookings yet" message="Bookings will appear here when customers book your venues." icon="calendar" />
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm text-left">
+        <thead class="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+          <tr>
+            <th class="px-4 py-3">Venue</th>
+            <th class="px-4 py-3">Date</th>
+            <th class="px-4 py-3">Time</th>
+            <th class="px-4 py-3">Guests</th>
+            <th class="px-4 py-3">Amount</th>
+            <th class="px-4 py-3">Status</th>
+            <th class="px-4 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (booking of bookings(); track booking.id) {
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-medium text-gray-900">{{ booking.venueName }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ booking.eventDate | dateFormat }}</td>
+              <td class="px-4 py-3 text-gray-600">{{ booking.startTime }} - {{ booking.endTime }}</td>
+              <td class="px-4 py-3">{{ booking.guestCount }}</td>
+              <td class="px-4 py-3 font-medium">{{ booking.totalAmount | currencyFormat }}</td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">{{ booking.status }}</span>
+              </td>
+              <td class="px-4 py-3">
+                @if (booking.status === 'pending') {
+                  <div class="flex gap-2">
+                    <button class="text-xs px-2 py-1 bg-green-600 text-white rounded hover:bg-green-700" (click)="onApprove(booking.id)">Approve</button>
+                    <button class="text-xs px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700" (click)="onReject(booking.id)">Reject</button>
+                  </div>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
