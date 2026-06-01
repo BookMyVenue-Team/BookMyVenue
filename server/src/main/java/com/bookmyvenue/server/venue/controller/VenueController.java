@@ -1,6 +1,7 @@
 package com.bookmyvenue.server.venue.controller;
 
 import com.bookmyvenue.server.venue.dto.request.CreateVenueRequest;
+import com.bookmyvenue.server.venue.dto.request.UpdateVenueRequest;
 import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 import com.bookmyvenue.server.venue.service.VenueService;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,14 @@ public class VenueController {
             @PathVariable Long id
     ) {
         return venueService.getApprovedVenue(id);
+    }
+
+    @PatchMapping("venues/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public VenueResponse updateVenue(
+            @PathVariable Long id,
+            @RequestBody UpdateVenueRequest request
+    ) {
+        return venueService.updateVenue(id, request);
     }
 }

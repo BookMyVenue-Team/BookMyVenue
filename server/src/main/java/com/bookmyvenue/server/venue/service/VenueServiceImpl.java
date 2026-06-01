@@ -3,6 +3,7 @@ package com.bookmyvenue.server.venue.service;
 import com.bookmyvenue.server.user.entity.User;
 import com.bookmyvenue.server.user.repository.UserRepository;
 import com.bookmyvenue.server.venue.dto.request.CreateVenueRequest;
+import com.bookmyvenue.server.venue.dto.request.UpdateVenueRequest;
 import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 import com.bookmyvenue.server.venue.entity.Venue;
 import com.bookmyvenue.server.venue.entity.VenueCategory;
@@ -92,5 +93,59 @@ public class VenueServiceImpl implements VenueService {
                         new RuntimeException("Venue not found"));
 
         return venueMapper.toResponse(venue);
+    }
+
+    @Override
+    public VenueResponse updateVenue(
+            Long venueId,
+            UpdateVenueRequest request
+    ) {
+
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() ->
+                        new RuntimeException("Venue not found"));
+
+        // TODO: Replace with SecurityContext authentication
+        if (!venue.getOwner().getId().equals(request.getOwnerId())) {
+            throw new RuntimeException("You are not the owner of this venue");
+        }
+
+        if (request.getName() != null) {
+            venue.setName(request.getName());
+        }
+
+        if (request.getDescription() != null) {
+            venue.setDescription(request.getDescription());
+        }
+
+        if (request.getAddress() != null) {
+            venue.setAddress(request.getAddress());
+        }
+
+        if (request.getDistrict() != null) {
+            venue.setDistrict(request.getDistrict());
+        }
+
+        if (request.getCapacity() != null) {
+            venue.setCapacity(request.getCapacity());
+        }
+
+        if (request.getPricePerSlot() != null) {
+            venue.setPricePerSlot(request.getPricePerSlot());
+        }
+
+        if (request.getCategoryId() != null) {
+
+            VenueCategory category = venueCategoryRepository
+                    .findById(request.getCategoryId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Venue category not found"));
+
+            venue.setCategory(category);
+        }
+
+        Venue updatedVenue = venueRepository.save(venue);
+
+        return venueMapper.toResponse(updatedVenue);
     }
 }
