@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -147,5 +148,23 @@ public class VenueServiceImpl implements VenueService {
         Venue updatedVenue = venueRepository.save(venue);
 
         return venueMapper.toResponse(updatedVenue);
+    }
+
+    @Override
+    public void deleteVenue(
+            Long venueId,
+            UUID ownerId
+    ) {
+
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() ->
+                        new RuntimeException("Venue not found"));
+
+        // TODO: Replace with SecurityContext authentication
+        if (!venue.getOwner().getId().equals(ownerId)) {
+            throw new RuntimeException("You are not the owner of this venue");
+        }
+
+        venueRepository.delete(venue);
     }
 }

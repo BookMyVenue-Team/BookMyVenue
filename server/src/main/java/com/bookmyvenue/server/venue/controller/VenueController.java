@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -58,5 +59,14 @@ public class VenueController {
             @RequestBody UpdateVenueRequest request
     ) {
         return venueService.updateVenue(id, request);
+    }
+
+    @DeleteMapping("venues/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteVenue(
+            @PathVariable Long id,
+            @RequestParam UUID ownerId
+    ) {
+        venueService.deleteVenue(id, ownerId);
     }
 }
