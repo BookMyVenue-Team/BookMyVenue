@@ -3,6 +3,13 @@ package com.bookmyvenue.server.venue.service;
 import com.bookmyvenue.server.venue.dto.request.CreateVenueRequest;
 import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 
+import java.util.List;
+
 public interface VenueService {
-    public VenueResponse createVenue(CreateVenueRequest request);
+    VenueResponse createVenue(CreateVenueRequest request);
+    List<VenueResponse> getAllVenues();
+    VenueResponse getVenue(Long venueId);
+    List<VenueResponse> getApprovedVenues();
+    VenueResponse getApprovedVenue(Long id);
+
 }

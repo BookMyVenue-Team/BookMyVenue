@@ -7,11 +7,14 @@ import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 import com.bookmyvenue.server.venue.entity.Venue;
 import com.bookmyvenue.server.venue.entity.VenueCategory;
 import com.bookmyvenue.server.venue.entity.VenueStatus;
+import com.bookmyvenue.server.venue.mapper.VenueMapper;
 import com.bookmyvenue.server.venue.repository.VenueCategoryRepository;
 import com.bookmyvenue.server.venue.repository.VenueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -22,6 +25,7 @@ public class VenueServiceImpl implements VenueService {
     private final VenueRepository venueRepository;
     private final VenueCategoryRepository venueCategoryRepository;
     private final UserRepository userRepository;
+    private final VenueMapper venueMapper;
 
     @Override
     public VenueResponse createVenue(CreateVenueRequest request) {
@@ -50,16 +54,43 @@ public class VenueServiceImpl implements VenueService {
 
         Venue savedVenue = venueRepository.save(venue);
 
-        return VenueResponse.builder()
-                .id(savedVenue.getId())
-                .name(savedVenue.getName())
-                .description(savedVenue.getDescription())
-                .address(savedVenue.getAddress())
-                .district(savedVenue.getDistrict())
-                .capacity(savedVenue.getCapacity())
-                .pricePerSlot(savedVenue.getPricePerSlot())
-                .category(savedVenue.getCategory().getName())
-                .status(savedVenue.getStatus())
-                .build();
+        return venueMapper.toResponse(savedVenue);
+    }
+
+    @Override
+    public List<VenueResponse> getAllVenues() {
+      List<Venue> venues = venueRepository.findAll()
+              .stream().toList();
+      return venueMapper.toResponse(venues);
+    }
+
+    @Override
+    public VenueResponse getVenue(Long venueId) {
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(()->
+                        new RuntimeException("venue not found"));
+        return venueMapper.toResponse(venue);
+    }
+
+    @Override
+    public List<VenueResponse> getApprovedVenues() {
+
+        List<Venue> venues = venueRepository
+                .findByStatus(VenueStatus.APPROVED);
+
+        return venues.stream()
+                .map(venueMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    public VenueResponse getApprovedVenue(Long id) {
+
+        Venue venue = venueRepository
+                .findByIdAndStatus(id, VenueStatus.APPROVED)
+                .orElseThrow(() ->
+                        new RuntimeException("Venue not found"));
+
+        return venueMapper.toResponse(venue);
     }
 }

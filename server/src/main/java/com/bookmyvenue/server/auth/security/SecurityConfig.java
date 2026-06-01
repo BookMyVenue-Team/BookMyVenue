@@ -34,6 +34,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/api/v1/vendor/venues/**",
                                 "/api/v1/venues/**" // TODO: Restrict to VENDOR role after JWT authorization is implemented
                         ).permitAll()
                         .anyRequest().authenticated()
