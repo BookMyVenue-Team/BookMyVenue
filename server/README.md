@@ -1,7 +1,8 @@
 # BookMyVenue - Backend Server
 
 Backend service for **BookMyVenue**, built with **Spring Boot**, **Java 21**, and **Maven**.
-The project uses a **PostgreSQL** database running inside Docker for local development.
+
+The project uses **PostgreSQL** running inside Docker. The backend application can be run either from an IDE (recommended for backend developers) or inside Docker (recommended for frontend developers and deployment).
 
 ---
 
@@ -17,7 +18,7 @@ The project uses a **PostgreSQL** database running inside Docker for local devel
 
 # Prerequisites
 
-Before running the project, make sure the following are installed on your machine.
+Before running the project, make sure the following are installed.
 
 ## 1. Java 21
 
@@ -40,17 +41,7 @@ docker compose version
 
 ---
 
-## 3. Ensure Port 5432 is Free
-
-If PostgreSQL is already running locally, stop it before starting Docker:
-
-```bash
-sudo systemctl stop postgresql
-```
-
----
-
-# Running the Project Locally
+# Running the Project
 
 ## Step 1: Configure Environment Variables
 
@@ -60,67 +51,104 @@ Inside the `server/` directory, create a local `.env` file from the example temp
 cp .env.example .env
 ```
 
-Open the `.env` file and verify the values:
+Verify the values:
 
 ```env
 DB_USERNAME=postgres
-DB_PASSWORD=your password
+DB_PASSWORD=postgres123
 DB_NAME=bookmyvenue_db
+
+JWT_SECRET=<your-secret>
+JWT_ACCESS_TOKEN_EXPIRATION=900000
+JWT_REFRESH_TOKEN_EXPIRATION=604800000
 ```
-
-
 
 ---
 
-## Step 2: Start PostgreSQL with Docker
+# Backend Developer Setup (Recommended)
 
-From inside the `server/` directory, start the database container:
+Backend developers should run PostgreSQL in Docker and run Spring Boot from IntelliJ IDEA.
+
+## Step 1: Start PostgreSQL
 
 ```bash
-docker compose up -d
+docker compose up -d postgres
 ```
 
-Verify the container is running:
+Verify:
 
 ```bash
 docker ps
 ```
 
----
+You should see:
 
-## Step 3: Run the Spring Boot Application
+```text
+bmv-postgres-db
+```
 
-You can either:
+## Step 2: Run Spring Boot
 
-* Click the **Run/Play** button in your IDE (IntelliJ IDEA / VS Code)
-
-OR
-
-Run the Maven wrapper command:
+Run the application from IntelliJ IDEA or:
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-When you see the following log:
+When you see:
 
 ```text
-Started BookMyVenueApplication
+Started ServerApplication
 ```
 
-the backend server is successfully running.
+the backend server is running.
+
+The application will be available at:
+
+```text
+http://localhost:8080
+```
 
 ---
 
-# Stopping the Docker Container
+# Frontend Developer Setup
 
-To stop the PostgreSQL container:
+Frontend developers do not need Java, Maven, or IntelliJ.
+
+Start the entire backend stack using Docker:
+
+```bash
+docker compose up --build
+```
+
+This starts:
+
+* PostgreSQL
+* Spring Boot Backend
+
+The API will be available at:
+
+```text
+http://localhost:8080
+```
+
+---
+
+# Stopping Containers
+
+Stop all services:
 
 ```bash
 docker compose down
 ```
 
-> Your database data will remain safe because Docker volumes are persisted.
+Database data will remain safe because Docker volumes are persisted.
+
+To remove all database data and start fresh:
+
+```bash
+docker compose down -v
+```
 
 ---
 
@@ -130,17 +158,36 @@ docker compose down
 server/
 ├── src/
 ├── docker-compose.yml
+├── Dockerfile
 ├── .env.example
 ├── pom.xml
-└── mvnw
+├── mvnw
+└── README.md
 ```
+
+---
+
+# Deployment
+
+Build and start all services:
+
+```bash
+docker compose up -d --build
+```
+
+This will:
+
+1. Start PostgreSQL
+2. Build the Spring Boot Docker image
+3. Start the backend container
+4. Apply Flyway migrations
 
 ---
 
 # Notes
 
-* Ensure Docker Desktop/service is running before starting the project.
+* Ensure Docker is running before starting the project.
 * Use Java 21 for compatibility.
-* PostgreSQL runs inside Docker to keep local setup consistent across all developers.
-
----
+* PostgreSQL runs inside Docker for consistency across environments.
+* Backend developers are encouraged to run Spring Boot from IntelliJ for easier debugging and faster development.
+* Frontend developers can run the full backend stack using Docker only.

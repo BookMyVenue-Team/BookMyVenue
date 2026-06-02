@@ -2,7 +2,7 @@ export const ROUTE_PATHS = {
   USER: {
     BASE: 'user',
     LOGIN: 'login',
-    SIGNUP: 'signup',
+    SIGNUP: 'register',
     FORGOT_PASSWORD: 'forgot-password',
     DASHBOARD: 'dashboard',
     VENUES: 'venues',
@@ -14,7 +14,7 @@ export const ROUTE_PATHS = {
   VENDOR: {
     BASE: 'vendor',
     LOGIN: 'login',
-    SIGNUP: 'signup',
+    SIGNUP: 'register',
     FORGOT_PASSWORD: 'forgot-password',
     DASHBOARD: 'dashboard',
     VENUES: 'venues',

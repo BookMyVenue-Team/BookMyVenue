@@ -5,6 +5,7 @@ import { environment } from '../../core/config/environment';
 import { API_ENDPOINTS } from '../constants/api-endpoints.constant';
 import {
   AuthResponse,
+  RefreshTokenApiResponse,
   LoginRequest,
   SignupRequest,
   ForgotPasswordRequest,
@@ -31,12 +32,20 @@ export class AuthRepository {
     );
   }
 
-  signup(payload: SignupRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(
-      `${this.apiUrl}${API_ENDPOINTS.AUTH.SIGNUP}`,
-      payload
-    );
-  }
+signup(payload: SignupRequest): Observable<AuthResponse> {
+  const body = {
+    name: `${payload.firstName} ${payload.lastName}`.trim(),
+    email: payload.email,
+    phone: payload.phone,
+    password: payload.password,
+    role: payload.isVendor ? 'VENDOR' : 'USER',
+  };
+  return this.http.post<AuthResponse>(
+    `${this.apiUrl}${API_ENDPOINTS.AUTH.SIGNUP}`,
+    body
+  );
+}
+
 
   logout(): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
@@ -45,8 +54,8 @@ export class AuthRepository {
     );
   }
 
-  refreshToken(refreshToken: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(
+  refreshToken(refreshToken: string): Observable<RefreshTokenApiResponse> {
+    return this.http.post<RefreshTokenApiResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
       { refreshToken }
     );
