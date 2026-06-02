@@ -1,9 +1,15 @@
 export interface AuthResponse {
-  success: boolean;
-  token: string;
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  accessToken: string;
   refreshToken: string;
-  expiresIn: number;
-  user: AuthUser;
+}
+
+export interface RefreshTokenApiResponse {
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthUser {

@@ -4,6 +4,7 @@ import { AuthRepository } from './auth.repository';
 import { StorageService } from './storage.service';
 import { NotificationService } from './notification.service';
 import {
+  AuthResponse,
   AuthUser,
   LoginRequest,
   SignupRequest,
@@ -94,6 +95,10 @@ export class AuthService {
     else this.userSession.set(null);
   }
 
+  private toAuthUser(response: AuthResponse): AuthUser {
+    return { id: response.userId, name: response.name, email: response.email, role: response.role };
+  }
+
   isPortalAuthenticated(role: UserRole): boolean {
     switch (role) {
       case UserRole.Admin: return this.adminSession() !== null;
@@ -134,8 +139,9 @@ export class AuthService {
     this.loading.set(true);
     this.authRepository.login(payload).subscribe({
       next: (response) => {
-        const portal = response.user.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.token, response.refreshToken, response.user);
+        const user = this.toAuthUser(response);
+        const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
+        this.savePortalSession(portal, response.accessToken, response.refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -151,7 +157,8 @@ export class AuthService {
     this.loading.set(true);
     this.authRepository.adminLogin(payload).subscribe({
       next: (response) => {
-        this.savePortalSession('admin', response.token, response.refreshToken, response.user);
+        const user = this.toAuthUser(response);
+        this.savePortalSession('admin', response.accessToken, response.refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
         this.loading.set(false);
@@ -167,8 +174,9 @@ export class AuthService {
     this.loading.set(true);
     this.authRepository.signup(payload).subscribe({
       next: (response) => {
-        const portal = response.user.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.token, response.refreshToken, response.user);
+        const user = this.toAuthUser(response);
+        const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
+        this.savePortalSession(portal, response.accessToken, response.refreshToken, user);
         this.notification.success(portal === 'vendor' ? 'Vendor account created successfully' : 'Account created successfully');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -218,7 +226,9 @@ export class AuthService {
     }
     this.authRepository.refreshToken(refreshToken).subscribe({
       next: (response) => {
-        this.savePortalSession(portal, response.token, response.refreshToken, response.user);
+        const keys = this.portalKeys(portal);
+        this.storage.set(keys.token, response.accessToken);
+        this.storage.set(keys.refresh, response.refreshToken);
       },
       error: () => {
         this.clearPortalSession(portal);
