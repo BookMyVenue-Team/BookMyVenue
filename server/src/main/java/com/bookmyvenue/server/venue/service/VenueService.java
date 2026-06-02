@@ -11,7 +11,7 @@ public interface VenueService {
     VenueResponse createVenue(CreateVenueRequest request);
     List<VenueResponse> getAllVenues();
     VenueResponse getVenue(Long venueId);
-    List<VenueResponse> getApprovedVenues();
+    List<VenueResponse> getApprovedVenues(String keyword, String district,Long categoryId);
     VenueResponse getApprovedVenue(Long id);
     VenueResponse updateVenue(
             Long venueId,

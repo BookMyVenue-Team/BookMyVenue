@@ -75,10 +75,52 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public List<VenueResponse> getApprovedVenues() {
+    public List<VenueResponse> getApprovedVenues(
+            String keyword,
+            String district,
+            Long categoryId
+    ) {
 
-        List<Venue> venues = venueRepository
-                .findByStatus(VenueStatus.APPROVED);
+        List<Venue> venues;
+
+        if (keyword != null && !keyword.isBlank()) {
+
+            venues = venueRepository.findByStatusAndNameContainingIgnoreCase(
+                    VenueStatus.APPROVED,
+                    keyword
+            );
+
+        } else if (district != null && categoryId != null) {
+
+            venues = venueRepository
+                    .findByStatusAndDistrictIgnoreCaseAndCategoryId(
+                            VenueStatus.APPROVED,
+                            district,
+                            categoryId
+                    );
+
+        } else if (district != null) {
+
+            venues = venueRepository
+                    .findByStatusAndDistrictContainingIgnoreCase(
+                            VenueStatus.APPROVED,
+                            district
+                    );
+
+        } else if (categoryId != null) {
+
+            venues = venueRepository
+                    .findByStatusAndCategoryId(
+                            VenueStatus.APPROVED,
+                            categoryId
+                    );
+
+        } else {
+
+            venues = venueRepository.findByStatus(
+                    VenueStatus.APPROVED
+            );
+        }
 
         return venues.stream()
                 .map(venueMapper::toResponse)

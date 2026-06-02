@@ -13,4 +13,23 @@ public interface VenueRepository extends JpaRepository<Venue,Long> {
             Long id,
             VenueStatus status
     );
+    List<Venue> findByStatusAndDistrictContainingIgnoreCase(
+            VenueStatus status,
+            String district
+    );
+
+    List<Venue> findByStatusAndCategoryId(
+            VenueStatus status,
+            Long categoryId
+    );
+
+    List<Venue> findByStatusAndDistrictIgnoreCaseAndCategoryId(
+            VenueStatus status,
+            String district,
+            Long categoryId
+    );
+    List<Venue> findByStatusAndNameContainingIgnoreCase(
+            VenueStatus status,
+            String keyword
+    );
 }

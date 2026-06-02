@@ -40,8 +40,11 @@ public class VenueController {
 
     @GetMapping("venues")
     @ResponseStatus(HttpStatus.OK)
-    public List<VenueResponse> getApprovedVenues() {
-        return venueService.getApprovedVenues();
+    public List<VenueResponse> getApprovedVenues(
+                                                   @RequestParam(required = false) String search,
+                                                   @RequestParam(required = false) String district,
+                                                   @RequestParam(required = false) Long categoryId) {
+        return venueService.getApprovedVenues(search,district,categoryId);
     }
 
     @GetMapping("venues/{id}")
