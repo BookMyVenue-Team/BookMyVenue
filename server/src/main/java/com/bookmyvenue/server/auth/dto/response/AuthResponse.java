@@ -26,9 +26,4 @@ public class AuthResponse {
     @Schema(description = "Role assigned to the user", example = "USER")
     private Role role;
 
-    @Schema(description = "JWT access token used to access protected APIs")
-    private String accessToken;
-
-    @Schema(description = "JWT refresh token used to obtain a new access token")
-    private String refreshToken;
 }
