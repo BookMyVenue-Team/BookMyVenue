@@ -1,10 +1,9 @@
 package com.bookmyvenue.server.auth.service;
 
 import com.bookmyvenue.server.auth.dto.request.LoginRequest;
-import com.bookmyvenue.server.auth.dto.request.RefreshTokenRequest;
 import com.bookmyvenue.server.auth.dto.request.RegisterRequest;
 import com.bookmyvenue.server.auth.dto.response.AuthResponse;
-import com.bookmyvenue.server.auth.dto.response.RefreshTokenResponse;
+import com.bookmyvenue.server.auth.dto.response.AuthResult;
 import com.bookmyvenue.server.auth.security.JwtService;
 import com.bookmyvenue.server.common.exception.BadRequestException;
 import com.bookmyvenue.server.common.exception.InvalidCredentialsException;
@@ -29,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResult register(RegisterRequest request) {
 
         log.info("Attempting registration for email: {}", request.getEmail());
 
@@ -62,20 +61,24 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("User registered successfully: {}", savedUser.getEmail());
 
-        return AuthResponse.builder()
+        AuthResponse response = AuthResponse.builder()
                 .userId(savedUser.getId())
                 .name(savedUser.getName())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
+
+        return new AuthResult(
+                response,
+                accessToken,
+                refreshToken
+        );
     }
 
 
 
     @Override
-    public AuthResponse login(LoginRequest request) {
+    public AuthResult login(LoginRequest request) {
         log.info("Login attempt for email: {}", request.getEmail());
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
@@ -93,21 +96,25 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("User logged in successfully: {}", user.getEmail());
 
-        return AuthResponse.builder()
+        AuthResponse response = AuthResponse.builder()
                 .userId(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
+
+        return new AuthResult(
+                response,
+                accessToken,
+                refreshToken
+        );
     }
 
 
     @Override
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+    public AuthResult refreshToken(String refreshToken) {
 
-        String email = jwtService.extractEmail(request.getRefreshToken());
+        String email = jwtService.extractEmail(refreshToken);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
                         new InvalidCredentialsException(
@@ -115,16 +122,23 @@ public class AuthServiceImpl implements AuthService {
                         )
                 );
 
-        if (!jwtService.isTokenValid(request.getRefreshToken(), user.getEmail()
+        if (!jwtService.isTokenValid(refreshToken, user.getEmail()
         )) {
             throw new InvalidCredentialsException("Invalid refresh token");
         }
         String accessToken = jwtService.generateAccessToken(user.getEmail(), user.getRole());
-        String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getRole());
+        String newRefreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getRole());
 
-        return RefreshTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+        AuthResponse response = AuthResponse.builder()
+                .userId(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole())
                 .build();
+        return new AuthResult(
+                response,
+                accessToken,
+                newRefreshToken
+        );
     }
 }
