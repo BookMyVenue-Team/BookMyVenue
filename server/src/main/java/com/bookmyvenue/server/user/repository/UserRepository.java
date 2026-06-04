@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * Used during user registration.
      */
     boolean existsByPhone(String phone);
+
+    UUID id(UUID id);
 }
