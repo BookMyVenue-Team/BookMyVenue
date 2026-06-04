@@ -1,5 +1,6 @@
 package com.bookmyvenue.server.venue.service;
 
+import com.bookmyvenue.server.auth.service.AuthenticatedUserService;
 import com.bookmyvenue.server.user.entity.User;
 import com.bookmyvenue.server.user.repository.UserRepository;
 import com.bookmyvenue.server.venue.dto.request.CreateVenueRequest;
@@ -26,8 +27,8 @@ public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
     private final VenueCategoryRepository venueCategoryRepository;
-    private final UserRepository userRepository;
     private final VenueMapper venueMapper;
+    private final AuthenticatedUserService authenticatedUserService;
 
     @Override
     public VenueResponse createVenue(CreateVenueRequest request) {
@@ -37,10 +38,8 @@ public class VenueServiceImpl implements VenueService {
                 .orElseThrow(() ->
                         new RuntimeException("Venue category not found"));
 
-        // TODO: Replace ownerId with authenticated user from SecurityContext once JWT integration is completed.
-        User owner = userRepository.findById(request.getOwnerId())
-                .orElseThrow(()->
-                        new RuntimeException("user not found"));
+        User currentUser =
+                authenticatedUserService.getCurrentUser();
 
         Venue venue = Venue.builder()
                 .name(request.getName())
@@ -51,7 +50,7 @@ public class VenueServiceImpl implements VenueService {
                 .pricePerSlot(request.getPricePerSlot())
                 .category(category)
                 .status(VenueStatus.PENDING_APPROVAL)
-                .owner(owner)
+                .owner(currentUser)
                 .build();
 
         Venue savedVenue = venueRepository.save(venue);
@@ -148,11 +147,10 @@ public class VenueServiceImpl implements VenueService {
                 .orElseThrow(() ->
                         new RuntimeException("Venue not found"));
 
-        // TODO: Replace with SecurityContext authentication
-        if (!venue.getOwner().getId().equals(request.getOwnerId())) {
+        User owner = authenticatedUserService.getCurrentUser();
+        if (!venue.getOwner().getId().equals(owner.getId())) {
             throw new RuntimeException("You are not the owner of this venue");
         }
-
         if (request.getName() != null) {
             venue.setName(request.getName());
         }
@@ -193,20 +191,16 @@ public class VenueServiceImpl implements VenueService {
     }
 
     @Override
-    public void deleteVenue(
-            Long venueId,
-            UUID ownerId
-    ) {
-
+    public void deleteVenue(Long venueId){
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() ->
                         new RuntimeException("Venue not found"));
 
-        // TODO: Replace with SecurityContext authentication
-        if (!venue.getOwner().getId().equals(ownerId)) {
-            throw new RuntimeException("You are not the owner of this venue");
-        }
+            User currentUser = authenticatedUserService.getCurrentUser();
 
+            if (!venue.getOwner().getId().equals(currentUser.getId())) {
+                throw new RuntimeException("You are not the owner of this venue");
+            }
         venueRepository.delete(venue);
     }
 }

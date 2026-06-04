@@ -23,8 +23,6 @@ public class CreateVenueRequest {
     private BigDecimal pricePerSlot;
 
     private Long categoryId;
-    // TODO: Temporary field for development. Remove after JWT authentication is integrated.
-    private UUID ownerId;
 
     private List<String> imageUrls;
 }

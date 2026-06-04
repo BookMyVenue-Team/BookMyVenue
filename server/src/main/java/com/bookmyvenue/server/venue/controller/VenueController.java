@@ -6,6 +6,7 @@ import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 import com.bookmyvenue.server.venue.service.VenueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class VenueController {
     }
 
     @GetMapping("vendor/venues")
+    @PreAuthorize("hasRole('USER')")
     @ResponseStatus(HttpStatus.OK)
     public List<VenueResponse> getAllVenues(){
         return venueService.getAllVenues();
@@ -67,9 +69,8 @@ public class VenueController {
     @DeleteMapping("venues/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVenue(
-            @PathVariable Long id,
-            @RequestParam UUID ownerId
+            @PathVariable Long id
     ) {
-        venueService.deleteVenue(id, ownerId);
+        venueService.deleteVenue(id);
     }
 }

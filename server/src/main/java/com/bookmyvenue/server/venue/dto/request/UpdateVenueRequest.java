@@ -11,7 +11,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateVenueRequest {
-    private UUID ownerId; // TODO: Remove after JWT integration
     private String name;
     private String description;
     private String address;

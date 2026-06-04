@@ -17,9 +17,6 @@ public interface VenueService {
             Long venueId,
             UpdateVenueRequest request
     );
-    void deleteVenue(
-            Long venueId,
-            UUID ownerId
-    );
+    void deleteVenue(Long venueId);
 
 }
