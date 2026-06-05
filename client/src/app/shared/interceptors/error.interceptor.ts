@@ -17,8 +17,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           message = 'Unable to connect to server';
           break;
         case 401:
-          message = 'Session expired. Please login again.';
-          authService.logout();
+          message = 'Session expired. Refreshing...';
+          authService.refreshToken();
           break;
         case 403:
           message = 'You do not have permission to perform this action';

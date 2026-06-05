@@ -53,8 +53,13 @@ signup(payload: SignupRequest): Observable<AuthResponse> {
     );
   }
 
+<<<<<<< Updated upstream
   refreshToken(): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
+=======
+  refreshToken(): Observable<RefreshTokenApiResponse> {
+    return this.http.post<RefreshTokenApiResponse>(
+>>>>>>> Stashed changes
       `${this.apiUrl}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
       {}
     );

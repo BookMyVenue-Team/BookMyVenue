@@ -35,3 +35,10 @@ export interface ResetPasswordRequest {
   password: string;
   confirmPassword: string;
 }
+
+export interface RefreshTokenApiResponse {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+}
