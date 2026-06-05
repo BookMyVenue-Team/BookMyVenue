@@ -39,6 +39,8 @@ export class AuthService {
 
   private portalKeys(portal: string): { token: string; refresh: string; user: string } {
     return {
+      token: `bmv_${portal}_token`,
+      refresh: `bmv_${portal}_refresh`,
       user: `bmv_${portal}_user`,
     };
   }
@@ -139,7 +141,7 @@ export class AuthService {
       next: (response) => {
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, user);
+        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
         this.notification.success('Login successful');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -156,7 +158,7 @@ export class AuthService {
     this.authRepository.adminLogin(payload).subscribe({
       next: (response) => {
         const user = this.toAuthUser(response);
-        this.savePortalSession('admin', user);
+        this.savePortalSession('admin', response.accessToken || '', response.refreshToken || '', user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
         this.loading.set(false);
@@ -174,7 +176,7 @@ export class AuthService {
       next: (response) => {
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, user);
+        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
         this.notification.success(portal === 'vendor' ? 'Vendor account created successfully' : 'Account created successfully');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -217,16 +219,11 @@ export class AuthService {
 
   refreshToken(): void {
     const portal = this.detectPortal();
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.clearPortalSession(portal);
-      return;
-    }
-    this.authRepository.refreshToken(refreshToken).subscribe({
+    this.authRepository.refreshToken().subscribe({
       next: (response) => {
         const keys = this.portalKeys(portal);
-        this.storage.set(keys.token, response.accessToken);
-        this.storage.set(keys.refresh, response.refreshToken);
+        this.storage.set(keys.token, response.accessToken || '');
+        this.storage.set(keys.refresh, response.refreshToken || '');
       },
       error: () => {
         const portal = this.detectPortal();
