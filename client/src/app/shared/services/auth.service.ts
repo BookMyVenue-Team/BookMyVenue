@@ -37,10 +37,8 @@ export class AuthService {
     this.loadAllSessions();
   }
 
-  private portalKeys(portal: string): { token: string; refresh: string; user: string } {
+  private portalKeys(portal: string): {  user: string } {
     return {
-      token: `bmv_${portal}_token`,
-      refresh: `bmv_${portal}_refresh_token`,
       user: `bmv_${portal}_user`,
     };
   }
@@ -59,10 +57,9 @@ export class AuthService {
   }
 
   private loadSession(portal: string): AuthUser | null {
-    const keys = this.portalKeys(portal);
-    const token = this.storage.get(keys.token);
-    const userJson = this.storage.get(keys.user);
-    if (token && userJson) {
+    const user = this.portalKeys(portal).user;
+    const userJson = this.storage.get(user);
+    if (userJson) {
       try {
         return JSON.parse(userJson);
       } catch {
@@ -73,11 +70,9 @@ export class AuthService {
     return null;
   }
 
-  private savePortalSession(portal: string, token: string, refreshToken: string, user: AuthUser): void {
-    const keys = this.portalKeys(portal);
-    this.storage.set(keys.token, token);
-    this.storage.set(keys.refresh, refreshToken);
-    this.storage.set(keys.user, JSON.stringify(user));
+  private savePortalSession(portal: string, user: AuthUser): void {
+    const userToStore = this.portalKeys(portal).user;
+    this.storage.set(userToStore, JSON.stringify(user));
 
     if (portal === 'admin') this.adminSession.set(user);
     else if (portal === 'vendor') this.vendorSession.set(user);
@@ -85,10 +80,8 @@ export class AuthService {
   }
 
   private clearPortalSession(portal: string): void {
-    const keys = this.portalKeys(portal);
-    this.storage.remove(keys.token);
-    this.storage.remove(keys.refresh);
-    this.storage.remove(keys.user);
+    const user = this.portalKeys(portal).user;
+    this.storage.remove(user);
 
     if (portal === 'admin') this.adminSession.set(null);
     else if (portal === 'vendor') this.vendorSession.set(null);
@@ -117,20 +110,6 @@ export class AuthService {
     }
   }
 
-  getToken(): string | null {
-    const portal = this.detectPortal();
-    return this.storage.get(this.portalKeys(portal).token);
-  }
-
-  getTokenForPortal(portal: string): string | null {
-    return this.storage.get(this.portalKeys(portal).token);
-  }
-
-  getRefreshToken(): string | null {
-    const portal = this.detectPortal();
-    return this.storage.get(this.portalKeys(portal).refresh);
-  }
-
   hasRole(role: UserRole): boolean {
     return this.currentUser()?.role === role;
   }
@@ -141,7 +120,7 @@ export class AuthService {
       next: (response) => {
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken, response.refreshToken, user);
+        this.savePortalSession(portal, user);
         this.notification.success('Login successful');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -158,7 +137,7 @@ export class AuthService {
     this.authRepository.adminLogin(payload).subscribe({
       next: (response) => {
         const user = this.toAuthUser(response);
-        this.savePortalSession('admin', response.accessToken, response.refreshToken, user);
+        this.savePortalSession('admin', user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
         this.loading.set(false);
@@ -176,7 +155,7 @@ export class AuthService {
       next: (response) => {
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken, response.refreshToken, user);
+        this.savePortalSession(portal, user);
         this.notification.success(portal === 'vendor' ? 'Vendor account created successfully' : 'Account created successfully');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -205,7 +184,7 @@ export class AuthService {
   logout(): void {
     const portal = this.detectPortal();
     this.authRepository.logout().subscribe({
-      complete: () => {
+      next: () => {
         this.clearPortalSession(portal);
         this.router.navigate(['/']);
         this.notification.info('Logged out successfully');
@@ -219,16 +198,9 @@ export class AuthService {
 
   refreshToken(): void {
     const portal = this.detectPortal();
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      this.clearPortalSession(portal);
-      return;
-    }
-    this.authRepository.refreshToken(refreshToken).subscribe({
+    this.authRepository.refreshToken().subscribe({
       next: (response) => {
-        const keys = this.portalKeys(portal);
-        this.storage.set(keys.token, response.accessToken);
-        this.storage.set(keys.refresh, response.refreshToken);
+       this.savePortalSession(portal,this.toAuthUser(response))
       },
       error: () => {
         this.clearPortalSession(portal);

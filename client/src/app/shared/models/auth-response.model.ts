@@ -3,13 +3,6 @@ export interface AuthResponse {
   name: string;
   email: string;
   role: string;
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface RefreshTokenApiResponse {
-  accessToken: string;
-  refreshToken: string;
 }
 
 export interface AuthUser {
