@@ -14,6 +14,7 @@ import com.bookmyvenue.server.venue.repository.VenueCategoryRepository;
 import com.bookmyvenue.server.venue.repository.VenueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class VenueServiceImpl implements VenueService {
 
     private final VenueRepository venueRepository;
@@ -32,15 +34,20 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     public VenueResponse createVenue(CreateVenueRequest request) {
-
+        log.info("Creating venue with name: {}, categoryId: {}",
+                request.getName(),
+                request.getCategoryId());
         VenueCategory category = venueCategoryRepository
                 .findById(request.getCategoryId())
                 .orElseThrow(() ->
                         new RuntimeException("Venue category not found"));
 
+        // Get currently authenticated venue owner
         User currentUser =
                 authenticatedUserService.getCurrentUser();
 
+
+        // New venues require admin approval before becoming visible
         Venue venue = Venue.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -54,6 +61,9 @@ public class VenueServiceImpl implements VenueService {
                 .build();
 
         Venue savedVenue = venueRepository.save(venue);
+        log.info("Venue created successfully. venueId={}, ownerId={}",
+                savedVenue.getId(),
+                currentUser.getId());
 
         return venueMapper.toResponse(savedVenue);
     }
@@ -147,10 +157,17 @@ public class VenueServiceImpl implements VenueService {
                 .orElseThrow(() ->
                         new RuntimeException("Venue not found"));
 
-        User owner = authenticatedUserService.getCurrentUser();
-        if (!venue.getOwner().getId().equals(owner.getId())) {
+        // Ensure only the venue owner can modify venue details
+        User currentUser = authenticatedUserService.getCurrentUser();
+        if (!venue.getOwner().getId().equals(currentUser.getId())) {
             throw new RuntimeException("You are not the owner of this venue");
         }
+        log.warn(
+                "Unauthorized venue update attempt. venueId={}, ownerId={}, requesterId={}",
+                venueId,
+                venue.getOwner().getId(),
+                currentUser.getId()
+        );
         if (request.getName() != null) {
             venue.setName(request.getName());
         }
@@ -187,6 +204,12 @@ public class VenueServiceImpl implements VenueService {
 
         Venue updatedVenue = venueRepository.save(venue);
 
+        log.info(
+                "Venue updated. venueId={}, ownerId={}",
+                updatedVenue.getId(),
+                currentUser.getId()
+        );
+
         return venueMapper.toResponse(updatedVenue);
     }
 
@@ -198,9 +221,22 @@ public class VenueServiceImpl implements VenueService {
 
             User currentUser = authenticatedUserService.getCurrentUser();
 
+          // Ensure only the venue owner can delete the venue
             if (!venue.getOwner().getId().equals(currentUser.getId())) {
+                log.warn(
+                        "Unauthorized venue delete attempt. venueId={}, ownerId={}, requesterId={}",
+                        venueId,
+                        venue.getOwner().getId(),
+                        currentUser.getId()
+                );
                 throw new RuntimeException("You are not the owner of this venue");
             }
         venueRepository.delete(venue);
+
+        log.info(
+                "Venue deleted. venueId={}, ownerId={}",
+                venueId,
+                currentUser.getId()
+        );
     }
 }
