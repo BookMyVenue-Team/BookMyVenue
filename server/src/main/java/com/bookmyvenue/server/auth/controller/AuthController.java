@@ -97,6 +97,9 @@ public class AuthController {
                 .body(result.response());
     }
 
+
+
+
     @Operation(summary = "Logout user", description = "Clears authentication cookies.")
     @ApiResponse(responseCode = "204", description = "Logout successful")
     @PostMapping("/logout")

@@ -8,15 +8,19 @@ import java.util.List;
 import java.util.UUID;
 
 public interface VenueService {
+
     VenueResponse createVenue(CreateVenueRequest request);
+
     List<VenueResponse> getAllVenues();
+
     VenueResponse getVenue(Long venueId);
+
     List<VenueResponse> getApprovedVenues(String keyword, String district,Long categoryId);
+
     VenueResponse getApprovedVenue(Long id);
-    VenueResponse updateVenue(
-            Long venueId,
-            UpdateVenueRequest request
-    );
+
+    VenueResponse updateVenue(Long venueId, UpdateVenueRequest request);
+
     void deleteVenue(Long venueId);
 
 }
