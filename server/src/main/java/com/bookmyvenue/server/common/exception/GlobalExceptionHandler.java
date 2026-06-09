@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
      * by the associated {@link ErrorCode}.
      */
     @ExceptionHandler(BusinessException.class)
-    public ApiErrorResponse handleBusinessException(
+    public ResponseEntity<ApiErrorResponse> handleBusinessException(
             BusinessException ex,
             HttpServletRequest request
     ) {
@@ -51,7 +52,7 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
 
-        return ApiErrorResponse.builder()
+        ApiErrorResponse response = ApiErrorResponse.builder()
                 .status(errorCode.getStatus().value())
                 .code(errorCode.getCode())
                 .error(errorCode.getStatus().getReasonPhrase())
@@ -59,6 +60,10 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
                 .build();
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(response);
     }
 
 

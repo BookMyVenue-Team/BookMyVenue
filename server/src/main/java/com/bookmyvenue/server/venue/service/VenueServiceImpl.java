@@ -1,6 +1,8 @@
 package com.bookmyvenue.server.venue.service;
 
 import com.bookmyvenue.server.auth.service.AuthenticatedUserService;
+import com.bookmyvenue.server.common.exception.BusinessException;
+import com.bookmyvenue.server.common.exception.ErrorCode;
 import com.bookmyvenue.server.user.entity.User;
 import com.bookmyvenue.server.user.repository.UserRepository;
 import com.bookmyvenue.server.venue.dto.request.CreateVenueRequest;
@@ -40,7 +42,7 @@ public class VenueServiceImpl implements VenueService {
         VenueCategory category = venueCategoryRepository
                 .findById(request.getCategoryId())
                 .orElseThrow(() ->
-                        new RuntimeException("Venue category not found"));
+                        new BusinessException(ErrorCode.VENUE_CATEGORY_NOT_FOUND));
 
         // Get currently authenticated venue owner
         User currentUser =
@@ -79,7 +81,7 @@ public class VenueServiceImpl implements VenueService {
     public VenueResponse getVenue(Long venueId) {
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(()->
-                        new RuntimeException("venue not found"));
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
         return venueMapper.toResponse(venue);
     }
 
@@ -141,8 +143,8 @@ public class VenueServiceImpl implements VenueService {
 
         Venue venue = venueRepository
                 .findByIdAndStatus(id, VenueStatus.APPROVED)
-                .orElseThrow(() ->
-                        new RuntimeException("Venue not found"));
+                .orElseThrow(()->
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
 
         return venueMapper.toResponse(venue);
     }
@@ -154,13 +156,13 @@ public class VenueServiceImpl implements VenueService {
     ) {
 
         Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(() ->
-                        new RuntimeException("Venue not found"));
+                .orElseThrow(()->
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
 
         // Ensure only the venue owner can modify venue details
         User currentUser = authenticatedUserService.getCurrentUser();
         if (!venue.getOwner().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("You are not the owner of this venue");
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
         }
         log.warn(
                 "Unauthorized venue update attempt. venueId={}, ownerId={}, requesterId={}",
@@ -197,7 +199,7 @@ public class VenueServiceImpl implements VenueService {
             VenueCategory category = venueCategoryRepository
                     .findById(request.getCategoryId())
                     .orElseThrow(() ->
-                            new RuntimeException("Venue category not found"));
+                           new BusinessException(ErrorCode.VENUE_CATEGORY_NOT_FOUND));
 
             venue.setCategory(category);
         }
@@ -217,7 +219,7 @@ public class VenueServiceImpl implements VenueService {
     public void deleteVenue(Long venueId){
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() ->
-                        new RuntimeException("Venue not found"));
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
 
             User currentUser = authenticatedUserService.getCurrentUser();
 
@@ -229,7 +231,7 @@ public class VenueServiceImpl implements VenueService {
                         venue.getOwner().getId(),
                         currentUser.getId()
                 );
-                throw new RuntimeException("You are not the owner of this venue");
+                throw new BusinessException(ErrorCode.ACCESS_DENIED);
             }
         venueRepository.delete(venue);
 

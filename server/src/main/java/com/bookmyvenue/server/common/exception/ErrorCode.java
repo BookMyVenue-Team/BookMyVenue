@@ -19,6 +19,16 @@ public enum ErrorCode {
             "USER_ALREADY_EXISTS",
             "User already exists"
     ),
+    PHONE_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "PHONE_ALREADY_EXISTS",
+            "phone number already registered"
+    ),
+    ADMIN_REGISTRATION_NOT_ALLOWED(
+            HttpStatus.BAD_REQUEST,
+            "ADMIN_REGISTRATION_NOT_ALLOWED",
+            "admin registration not allowed"
+    ),
 
     INVALID_CREDENTIALS(
             HttpStatus.UNAUTHORIZED,
@@ -55,10 +65,15 @@ public enum ErrorCode {
             "BAD_REQUEST",
             "Invalid request"
     ),
+    USER_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "USER NOT FOUND",
+            "user not found"
+    ),
 
-    INVALID_TOKEN(
+    INVALID_REFRESH_TOKEN(
             HttpStatus.UNAUTHORIZED,
-            "INVALID_TOKEN",
+            "INVALID_REFRESH_TOKEN",
             "Invalid or expired token"
     );
 
