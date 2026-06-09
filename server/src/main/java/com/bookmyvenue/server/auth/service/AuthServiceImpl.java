@@ -1,14 +1,11 @@
 package com.bookmyvenue.server.auth.service;
 
 import com.bookmyvenue.server.auth.dto.request.LoginRequest;
-import com.bookmyvenue.server.auth.dto.request.RefreshTokenRequest;
 import com.bookmyvenue.server.auth.dto.request.RegisterRequest;
 import com.bookmyvenue.server.auth.dto.response.AuthResponse;
-import com.bookmyvenue.server.auth.dto.response.RefreshTokenResponse;
+import com.bookmyvenue.server.auth.dto.response.AuthResult;
 import com.bookmyvenue.server.auth.security.JwtService;
-import com.bookmyvenue.server.common.exception.BadRequestException;
-import com.bookmyvenue.server.common.exception.InvalidCredentialsException;
-import com.bookmyvenue.server.common.exception.UserAlreadyExistsException;
+import com.bookmyvenue.server.common.exception.*;
 import com.bookmyvenue.server.user.entity.User;
 import com.bookmyvenue.server.user.enums.Role;
 import com.bookmyvenue.server.user.repository.UserRepository;
@@ -29,23 +26,25 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResult register(RegisterRequest request) {
 
         log.info("Attempting registration for email: {}", request.getEmail());
 
         if (userRepository.existsByEmail(request.getEmail())) {
             log.warn("Registration failed. Email already exists: {}", request.getEmail());
-            throw new UserAlreadyExistsException("Email already registered");
+            throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
         if (userRepository.existsByPhone(request.getPhone())) {
             log.warn("Registration failed. Phone already exists: {}", request.getPhone());
-            throw new UserAlreadyExistsException("Phone number already registered");
+            throw new BusinessException(ErrorCode.PHONE_ALREADY_EXISTS);
         }
 
         if (request.getRole() == Role.ADMIN) {
             log.warn("Attempted ADMIN registration for email: {}", request.getEmail());
-            throw new BadRequestException("Admin registration is not allowed");
+            throw new BusinessException(
+                    ErrorCode.ADMIN_REGISTRATION_NOT_ALLOWED
+            );
         }
         User user = User.builder()
                 .name(request.getName())
@@ -62,30 +61,34 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("User registered successfully: {}", savedUser.getEmail());
 
-        return AuthResponse.builder()
+        AuthResponse response = AuthResponse.builder()
                 .userId(savedUser.getId())
                 .name(savedUser.getName())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
+
+        return new AuthResult(
+                response,
+                accessToken,
+                refreshToken
+        );
     }
 
 
 
     @Override
-    public AuthResponse login(LoginRequest request) {
+    public AuthResult login(LoginRequest request) {
         log.info("Login attempt for email: {}", request.getEmail());
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
                     log.warn("Login failed. User not found: {}", request.getEmail());
-                    return new InvalidCredentialsException("Invalid email or password");
+                    return new BusinessException(ErrorCode.INVALID_CREDENTIALS);
                 });
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed. Invalid password for email: {}", request.getEmail());
-            throw new InvalidCredentialsException("Invalid email or password");
+            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }
 
         String accessToken = jwtService.generateAccessToken(user.getEmail(), user.getRole());
@@ -93,38 +96,47 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("User logged in successfully: {}", user.getEmail());
 
-        return AuthResponse.builder()
+        AuthResponse response = AuthResponse.builder()
                 .userId(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .build();
+
+        return new AuthResult(
+                response,
+                accessToken,
+                refreshToken
+        );
     }
 
 
     @Override
-    public RefreshTokenResponse refreshToken(RefreshTokenRequest request) {
+    public AuthResult refreshToken(String refreshToken) {
 
-        String email = jwtService.extractEmail(request.getRefreshToken());
+        String email = jwtService.extractEmail(refreshToken);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new InvalidCredentialsException(
-                                "Invalid refresh token"
-                        )
+                        new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN)
                 );
 
-        if (!jwtService.isTokenValid(request.getRefreshToken(), user.getEmail()
+        if (!jwtService.isTokenValid(refreshToken, user.getEmail()
         )) {
-            throw new InvalidCredentialsException("Invalid refresh token");
+            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
         String accessToken = jwtService.generateAccessToken(user.getEmail(), user.getRole());
-        String refreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getRole());
+        String newRefreshToken = jwtService.generateRefreshToken(user.getEmail(), user.getRole());
 
-        return RefreshTokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
+        AuthResponse response = AuthResponse.builder()
+                .userId(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .role(user.getRole())
                 .build();
+        return new AuthResult(
+                response,
+                accessToken,
+                newRefreshToken
+        );
     }
 }
