@@ -6,7 +6,8 @@ import com.bookmyvenue.server.auth.dto.response.AuthResponse;
 import com.bookmyvenue.server.auth.dto.response.AuthResult;
 import com.bookmyvenue.server.auth.security.CookieUtils;
 import com.bookmyvenue.server.auth.service.AuthService;
-import com.bookmyvenue.server.common.exception.InvalidCredentialsException;
+import com.bookmyvenue.server.common.exception.BusinessException;
+import com.bookmyvenue.server.common.exception.ErrorCode;
 import com.bookmyvenue.server.common.response.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -86,7 +87,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refreshToken(@CookieValue(value=CookieUtils.REFRESH_TOKEN,required = false) String refreshToken) {
 
         if (refreshToken == null) {
-            throw new InvalidCredentialsException("Refresh token not found");
+            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
         AuthResult result = authService.refreshToken(refreshToken);
         ResponseCookie accessCookie = cookieUtils.accessTokenCookie(result.accessToken());

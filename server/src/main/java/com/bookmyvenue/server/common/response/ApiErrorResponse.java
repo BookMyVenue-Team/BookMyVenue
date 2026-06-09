@@ -19,6 +19,9 @@ public class ApiErrorResponse {
     @Schema(description = "HTTP status code", example = "401")
     private int status;
 
+    @Schema(description = "Application error code", example = "RESOURCE_NOT_FOUND")
+    private String code;
+
     @Schema(description = "Error type", example = "Unauthorized")
     private String error;
 
