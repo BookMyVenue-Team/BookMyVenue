@@ -9,6 +9,7 @@ import {
   SignupRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  RefreshTokenApiResponse,
 } from '../models/auth-response.model';
 import { ApiResponse } from '../models/api-response.model';
 
@@ -53,8 +54,8 @@ signup(payload: SignupRequest): Observable<AuthResponse> {
     );
   }
 
-  refreshToken(): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(
+  refreshToken(): Observable<RefreshTokenApiResponse> {
+    return this.http.post<RefreshTokenApiResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
       {}
     );
