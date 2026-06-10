@@ -64,24 +64,25 @@ CREATE TABLE venue_image (
 );
 
 
-CREATE TABLE slot (
-                      id BIGSERIAL PRIMARY KEY,
+CREATE TABLE venue_availability_template (
+                                             id BIGSERIAL PRIMARY KEY,
 
-                      venue_id BIGINT NOT NULL,
+                                             venue_id BIGINT NOT NULL,
 
-                      date DATE NOT NULL,
+                                             day_of_week VARCHAR(20) NOT NULL,
 
-                      start_time TIME NOT NULL,
-                      end_time TIME NOT NULL,
+                                             start_time TIME NOT NULL,
+                                             end_time TIME NOT NULL,
 
-                      status VARCHAR(50) NOT NULL,
+                                             active BOOLEAN NOT NULL DEFAULT TRUE,
 
-                      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                             created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                             updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-                      CONSTRAINT fk_slot_venue
-                          FOREIGN KEY (venue_id)
-                              REFERENCES venue(id)
+                                             CONSTRAINT fk_template_venue
+                                                 FOREIGN KEY (venue_id)
+                                                     REFERENCES venue(id)
+                                                     ON DELETE CASCADE
 );
 
 
@@ -90,7 +91,11 @@ CREATE TABLE booking (
 
                          user_id UUID NOT NULL,
                          venue_id BIGINT NOT NULL,
-                         slot_id BIGINT NOT NULL,
+
+                         booking_date DATE NOT NULL,
+
+                         start_time TIME NOT NULL,
+                         end_time TIME NOT NULL,
 
                          status VARCHAR(50) NOT NULL,
 
@@ -107,11 +112,7 @@ CREATE TABLE booking (
 
                          CONSTRAINT fk_booking_venue
                              FOREIGN KEY (venue_id)
-                                 REFERENCES venue(id),
-
-                         CONSTRAINT fk_booking_slot
-                             FOREIGN KEY (slot_id)
-                                 REFERENCES slot(id)
+                                 REFERENCES venue(id)
 );
 
 
