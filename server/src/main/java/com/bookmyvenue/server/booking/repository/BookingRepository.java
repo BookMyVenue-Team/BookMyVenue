@@ -21,4 +21,10 @@ public interface BookingRepository
 
     List<Booking> findByUserId(UUID userId);
 
+    List<Booking> findByVenueIdAndBookingDateAndStatusIn(
+            Long venueId,
+            LocalDate bookingDate,
+            List<BookingStatus> statuses
+    );
+
 }
