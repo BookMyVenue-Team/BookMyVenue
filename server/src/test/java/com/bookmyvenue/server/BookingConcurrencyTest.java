@@ -90,7 +90,7 @@ class BookingConcurrencyTest {
                             .slotTemplate(slotTemplate)
                             .bookingDate(bookingDate)
                             .status(BookingStatus.PENDING)
-                            .totalAmount(BigDecimal.ZERO)
+                            .totalAmount(venue.getPricePerSlot())
                             .expiresAt(
                                     LocalDateTime.now()
                                             .plusMinutes(10)
