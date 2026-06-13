@@ -3,6 +3,8 @@ package com.bookmyvenue.server.booking.controller;
 import com.bookmyvenue.server.booking.dto.request.BookingRequest;
 import com.bookmyvenue.server.booking.dto.response.BookingResponse;
 import com.bookmyvenue.server.booking.service.BookingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "Booking Management")
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class BookingController {
@@ -19,6 +22,7 @@ public class BookingController {
     @PostMapping(
             "/venues/{venueId}/slots/{slotTemplateId}/bookings"
     )
+    @Operation(summary = "Create Booking")
     @ResponseStatus(HttpStatus.CREATED)
     public BookingResponse createBooking(
             @PathVariable Long venueId,
@@ -34,6 +38,7 @@ public class BookingController {
     }
 
     @GetMapping("/bookings/my-bookings")
+    @Operation(summary = "Get My Bookings")
     @ResponseStatus(HttpStatus.OK)
     public List<BookingResponse> getMyBookings() {
 
@@ -41,6 +46,7 @@ public class BookingController {
     }
 
     @PostMapping("/bookings/{bookingId}/cancel")
+    @Operation(summary = "Cancel Booking")
     @ResponseStatus(HttpStatus.OK)
     public void cancelBooking(
             @PathVariable Long bookingId
