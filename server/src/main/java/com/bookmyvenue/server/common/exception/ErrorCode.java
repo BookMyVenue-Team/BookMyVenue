@@ -86,7 +86,17 @@ public enum ErrorCode {
 
     OVERLAPPING_SLOT_TEMPLATE(HttpStatus.BAD_REQUEST,
             "OVERLAPPING_SLOT_TEMPLATE",
-            "Slot template overlaps with existing schedule");
+            "Slot template overlaps with existing schedule"),
+    SLOT_ALREADY_BOOKED(
+            HttpStatus.CONFLICT,
+            "SLOT_ALREADY_BOOKED",
+            "Selected slot is already booked"
+    ),
+    INVALID_BOOKING_DATE(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_BOOKING_DATE",
+            "Selected date does not match the slot template schedule"
+    );
 
 
     private final HttpStatus status;

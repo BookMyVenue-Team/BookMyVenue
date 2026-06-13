@@ -1,6 +1,6 @@
 package com.bookmyvenue.server.booking.service;
 
-import com.bookmyvenue.server.booking.dto.AvailabilityResponse;
+import com.bookmyvenue.server.booking.dto.response.AvailabilityResponse;
 
 import java.time.LocalDate;
 import java.util.List;

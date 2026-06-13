@@ -1,6 +1,6 @@
 package com.bookmyvenue.server.booking.service;
 
-import com.bookmyvenue.server.booking.dto.AvailabilityResponse;
+import com.bookmyvenue.server.booking.dto.response.AvailabilityResponse;
 import com.bookmyvenue.server.common.exception.BusinessException;
 import com.bookmyvenue.server.common.exception.ErrorCode;
 import com.bookmyvenue.server.slot.entity.SlotTemplate;

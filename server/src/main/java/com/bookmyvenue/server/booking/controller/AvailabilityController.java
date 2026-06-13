@@ -1,6 +1,6 @@
 package com.bookmyvenue.server.booking.controller;
 
-import com.bookmyvenue.server.booking.dto.AvailabilityResponse;
+import com.bookmyvenue.server.booking.dto.response.AvailabilityResponse;
 import com.bookmyvenue.server.booking.service.AvailabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
