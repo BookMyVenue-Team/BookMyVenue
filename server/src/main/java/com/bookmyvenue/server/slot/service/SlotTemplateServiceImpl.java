@@ -61,8 +61,36 @@ public class SlotTemplateServiceImpl
                     request.startTime(),
                     request.endTime()
             );
-
             throw new BusinessException(ErrorCode.INVALID_TIME_RANGE);
+        }
+
+        List<SlotTemplate> existingTemplates =
+                slotTemplateRepository.findByVenueIdAndDayOfWeek(
+                        venueId,
+                        request.dayOfWeek()
+                );
+
+        // Ensure the new slot does not overlap with any existing slot
+        // for the same venue and day of the week.
+        boolean hasOverlap = existingTemplates.stream()
+                .anyMatch(template ->
+                        request.startTime().isBefore(template.getEndTime())
+                                && request.endTime().isAfter(template.getStartTime())
+                );
+
+        if (hasOverlap) {
+
+            log.warn(
+                    "Overlapping slot template detected. venueId={}, day={}, startTime={}, endTime={}",
+                    venueId,
+                    request.dayOfWeek(),
+                    request.startTime(),
+                    request.endTime()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.OVERLAPPING_SLOT_TEMPLATE
+            );
         }
 
         SlotTemplate slotTemplate =
@@ -100,7 +128,25 @@ public class SlotTemplateServiceImpl
                 "Fetching slot templates for venueId={}",
                 venueId
         );
+        Venue venue = venueRepository.findById(venueId)
+                .orElseThrow(() ->
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
 
+        User currentUser = authenticatedUserService.getCurrentUser();
+
+        if (!venue.getOwner().getId().equals(currentUser.getId())) {
+            log.warn(
+                    "Unauthorized slot template access. venueId={}, userId={}",
+                    venueId,
+                    currentUser.getId()
+            );
+            throw new BusinessException(ErrorCode.ACCESS_DENIED);
+        }
+
+        log.info(
+                "Successfully fetched slot templates for venueId={}",
+                venueId
+        );
         return slotTemplateRepository.findByVenueId(venueId)
                 .stream()
                 .map(template ->
