@@ -18,7 +18,6 @@ import java.util.List;
 public class AvailabilityController {
 
     private final AvailabilityService availabilityService;
-
     @GetMapping("/{venueId}/availability")
     @Operation(summary = "Get Venue Availability")
     public ResponseEntity<List<AvailabilityResponse>>
