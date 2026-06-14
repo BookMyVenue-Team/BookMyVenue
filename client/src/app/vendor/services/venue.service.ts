@@ -1,9 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable } from 'rxjs';
 import { VendorVenueRepository } from '../repositories/venue.repository';
 import { Venue, CreateVenueRequest, UpdateVenueRequest } from '../../shared/models/venue.model';
 import { NotificationService } from '../../shared/services/notification.service';
-import { ApiResponse } from '../../shared/models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class VenueService {
@@ -16,20 +15,25 @@ export class VenueService {
   loadVendorVenues(): void {
     this.loading.set(true);
     this.venueRepository.getVendorVenues().subscribe({
-      next: (response) => { this.venues.set(response.data); this.loading.set(false); },
-      error: () => { this.notification.error('Failed to load venues'); this.loading.set(false); },
+      next: (response) => { this.venues.set(response);},
+      error: () => { this.notification.error('Failed to load venues');},
+      complete:() => { this.loading.set(false);}
     });
   }
 
   loadVenueById(id: string): Observable<Venue> {
-    return this.venueRepository.getVenueById(id).pipe(map(r => r.data));
+    return this.venueRepository.getVenueById(id);
   }
 
-  createVenue(payload: CreateVenueRequest): Observable<ApiResponse<Venue>> {
+  createVenue(payload: CreateVenueRequest): Observable<Venue> {
     return this.venueRepository.createVenue(payload);
   }
 
-  updateVenue(id: string, payload: UpdateVenueRequest): Observable<ApiResponse<Venue>> {
+  updateVenue(id: string, payload: UpdateVenueRequest): Observable<Venue> {
     return this.venueRepository.updateVenue(id, payload);
+  }
+  
+  deleteVenue(id:string):Observable<void>{
+    return this.venueRepository.deleteVenue(id);
   }
 }

@@ -21,11 +21,11 @@ export class ButtonComponent {
   readonly buttonClasses = computed(() => {
     const base = 'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
     const variants: Record<string, string> = {
-      primary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500',
+      primary: 'bg-brand-500 text-white hover:bg-brand-600 focus:ring-brand-500 shadow-sm',
       secondary: 'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500',
       danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
-      outline: 'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500',
-      ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-indigo-500',
+      outline: 'border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 focus:ring-accent-500',
+      ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-accent-500',
     };
     const sizes: Record<string, string> = {
       sm: 'px-3 py-1.5 text-xs',

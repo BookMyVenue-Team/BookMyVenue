@@ -2,63 +2,41 @@ import { VenueStatus } from '../enums/venue-status.enum';
 
 export interface Venue {
   id: string;
-  vendorId: string;
   name: string;
   description: string;
   address: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  district: string;
   capacity: number;
-  pricePerHour: number;
-  pricePerDay: number;
-  amenities: string[];
-  images: string[];
+  pricePerSlot: number;
+  category: string;
   status: VenueStatus;
-  rating: number;
-  totalReviews: number;
-  createdAt: string;
-  updatedAt: string;
+  imageUrls?: string[];
 }
 
 export interface CreateVenueRequest {
   name: string;
   description: string;
   address: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  district: string;
   capacity: number;
-  pricePerHour: number;
-  pricePerDay: number;
-  amenities: string[];
-  images: string[];
+  pricePerSlot: number;
+  categoryId: number;
+  imageUrls?: string[];
 }
 
 export interface UpdateVenueRequest {
   name?: string;
   description?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
+  district?: string;
   capacity?: number;
-  pricePerHour?: number;
-  pricePerDay?: number;
-  amenities?: string[];
-  images?: string[];
-  status?: VenueStatus;
+  pricePerSlot?: number;
+  categoryId?: number;
+  imageUrls?: string[];
 }
 
 export interface VenueFilter {
-  city?: string;
-  minCapacity?: number;
-  maxCapacity?: number;
-  minPrice?: number;
-  maxPrice?: number;
-  amenities?: string[];
-  status?: VenueStatus;
   search?: string;
-  page?: number;
-  limit?: number;
+  district?: string;
+  categoryId?: number;
 }

@@ -19,6 +19,12 @@ export class LoginComponent {
 
   readonly loading = this.authService.loading;
 
+  readonly panelFeatures = [
+    'Browse 500+ verified venues across India',
+    'Real-time availability & instant booking',
+    'Transparent pricing with no hidden charges',
+  ];
+
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
