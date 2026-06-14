@@ -1,11 +1,12 @@
 import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { UpperCasePipe } from '@angular/common';
 import { AuthService } from '../../../shared/services/auth.service';
 
 @Component({
   selector: 'app-vendor-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, UpperCasePipe],
   templateUrl: './vendor-layout.component.html',
   styleUrl: './vendor-layout.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

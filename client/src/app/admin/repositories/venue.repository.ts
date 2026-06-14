@@ -17,6 +17,6 @@ export class AdminVenueRepository {
   }
 
   toggleVenueStatus(id: string, status: string): Observable<ApiResponse<Venue>> {
-    return this.http.patch<ApiResponse<Venue>>(`${this.apiUrl}${API_ENDPOINTS.VENUES.BY_ID(id)}`, { status });
+    return this.http.patch<ApiResponse<Venue>>(`${this.apiUrl}${API_ENDPOINTS.VENUES.PUBLIC_BY_ID(id)}`, { status });
   }
 }

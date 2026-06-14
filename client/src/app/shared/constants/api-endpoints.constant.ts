@@ -6,7 +6,7 @@ export const API_ENDPOINTS = {
     REFRESH_TOKEN: '/auth/refresh-token',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
-    ADMIN_LOGIN: '/auth/admin/login',
+    ADMIN_LOGIN: '/auth/login',
   },
   USERS: {
     BASE: '/users',
@@ -20,10 +20,14 @@ export const API_ENDPOINTS = {
     ANALYTICS: '/vendors/analytics',
   },
   VENUES: {
-    BASE: '/venues',
-    BY_ID: (id: string) => `/venues/${id}`,
-    BY_VENDOR: (vendorId: string) => `/vendors/${vendorId}/venues`,
-    SEARCH: '/venues/search',
+    // Public endpoints (no auth required)
+    PUBLIC_BASE:'/v1/venues',
+    PUBLIC_BY_ID:(id:string) =>   `/v1/venues/${id}`,
+
+    // Vendor endpoints (require VENDOR role)
+
+    VENDOR_BASE: '/v1/vendor/venues',
+    VENDOR_BY_ID: (id: string) => `/v1/vendor/venues/${id}`,
   },
   BOOKINGS: {
     BASE: '/bookings',

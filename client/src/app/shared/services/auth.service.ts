@@ -11,6 +11,7 @@ import {
   ForgotPasswordRequest,
 } from '../models/auth-response.model';
 import { UserRole } from '../enums/user-role.enum';
+import { map, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -60,9 +61,8 @@ export class AuthService {
 
   private loadSession(portal: string): AuthUser | null {
     const keys = this.portalKeys(portal);
-    const token = this.storage.get(keys.token);
     const userJson = this.storage.get(keys.user);
-    if (token && userJson) {
+    if (userJson) {
       try {
         return JSON.parse(userJson);
       } catch {
@@ -217,19 +217,16 @@ export class AuthService {
     });
   }
 
-  refreshToken(): void {
-    const portal = this.detectPortal();
-    this.authRepository.refreshToken().subscribe({
-      next: (response) => {
-        const keys = this.portalKeys(portal);
-        this.storage.set(keys.token, response.accessToken || '');
-        this.storage.set(keys.refresh, response.refreshToken || '');
-      },
-      error: () => {
-        const portal = this.detectPortal();
-        this.clearPortalSession(portal);
-        this.router.navigate(['/']);
-      },
-    });
-  }
+refreshToken(): Observable<void> {
+  return this.authRepository.refreshToken().pipe(
+    map(() => void 0)
+  );
+}
+
+handleLogout(): void {
+  const portal = this.detectPortal();
+  this.clearPortalSession(portal);
+  this.router.navigate(['/login']);
+}
+
 }
