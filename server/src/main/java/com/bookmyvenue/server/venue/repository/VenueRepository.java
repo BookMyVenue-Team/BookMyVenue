@@ -2,6 +2,8 @@ package com.bookmyvenue.server.venue.repository;
 
 import com.bookmyvenue.server.venue.entity.Venue;
 import com.bookmyvenue.server.venue.entity.VenueStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -32,4 +34,9 @@ public interface VenueRepository extends JpaRepository<Venue,Long> {
             VenueStatus status,
             String keyword
     );
+
+
+    long countByStatus(VenueStatus status);
+
+    Page<Venue> findByStatus(VenueStatus status, Pageable pageable);
 }

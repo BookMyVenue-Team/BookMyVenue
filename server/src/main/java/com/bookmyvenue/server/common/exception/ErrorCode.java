@@ -96,6 +96,11 @@ public enum ErrorCode {
             HttpStatus.BAD_REQUEST,
             "INVALID_BOOKING_DATE",
             "Selected date does not match the slot template schedule"
+    ),
+    INVALID_VENUE_STATUS(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_VENUE_STATUS",
+            "Invalid venue status"
     );
 
 
