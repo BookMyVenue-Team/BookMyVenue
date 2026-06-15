@@ -15,21 +15,24 @@
       @for (venue of venues(); track venue.id) {
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div class="h-40 bg-gray-200">
-            @if (venue.images.length > 0) {
-              <img [src]="venue.images[0]" [alt]="venue.name" class="w-full h-full object-cover" />
+           @if (venue.imageUrls && venue.imageUrls.length > 0) {
+              <img [src]="venue.imageUrls[0]" [alt]="venue.name" class="w-full h-full object-cover" />
             }
           </div>
           <div class="p-4">
             <div class="flex items-center justify-between mb-2">
               <h3 class="font-semibold text-gray-900">{{ venue.name }}</h3>
-              <span [class]="'px-2 py-0.5 text-xs font-medium rounded-full ' + (venue.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600')">
+              <span [class]="'px-2 py-0.5 text-xs font-medium rounded-full ' + (venue.status === 'APPROVED' ? 'bg-green-100 text-green-700' : venue.status === 'PENDING_APPROVAL' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-600')">
                 {{ venue.status }}
               </span>
             </div>
-            <p class="text-sm text-gray-500 mb-3">{{ venue.city }}, {{ venue.state }}</p>
+            <p class="text-sm text-gray-500 mb-3">{{ venue.address }}</p>
             <div class="flex items-center justify-between">
-              <span class="font-medium text-indigo-600">{{ venue.pricePerHour }}/hr</span>
-              <a [routerLink]="['/vendor/venues', venue.id, 'edit']" class="text-sm text-indigo-600 hover:text-indigo-500">Edit</a>
+              <span class="font-medium text-indigo-600">{{ venue.pricePerSlot }}/slot</span>
+              <div class="flex gap-3" >
+                <a [routerLink]="['/vendor/venues', venue.id, 'edit']" class="text-sm text-indigo-600 hover:text-indigo-500">Edit</a>
+                <button (click)="deleteVenue(venue.id)" class="text-sm text-red-500 hover:text-red-400" >Delete</button>
+              </div>
             </div>
           </div>
         </div>

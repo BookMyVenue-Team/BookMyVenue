@@ -1,6 +1,6 @@
 export enum VenueStatus {
-  Active = 'active',
-  Inactive = 'inactive',
-  Pending = 'pending',
-  Rejected = 'rejected',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  INACTIVE = 'INACTIVE',
 }

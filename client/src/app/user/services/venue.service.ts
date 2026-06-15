@@ -11,16 +11,12 @@ export class VenueService {
 
   readonly venues = signal<Venue[]>([]);
   readonly loading = signal(false);
-  readonly totalPages = signal(1);
-  readonly totalItems = signal(0);
 
   loadVenues(filter?: VenueFilter): void {
     this.loading.set(true);
     this.venueRepository.getVenues(filter).subscribe({
-      next: (response) => {
-        this.venues.set(response.data);
-        this.totalPages.set(response.totalPages);
-        this.totalItems.set(response.total);
+      next: (venues) => {
+        this.venues.set(venues);
         this.loading.set(false);
       },
       error: () => {
@@ -31,8 +27,6 @@ export class VenueService {
   }
 
   loadVenueById(id: string): Observable<Venue> {
-    return this.venueRepository.getVenueById(id).pipe(
-      map((response) => response.data)
-    );
+    return this.venueRepository.getVenueById(id);
   }
 }

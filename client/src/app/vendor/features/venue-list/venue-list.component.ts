@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { VenueService } from '../../services/venue.service';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
@@ -17,8 +17,23 @@ export class VenueListComponent implements OnInit {
 
   readonly venues = this.venueService.venues;
   readonly loading = this.venueService.loading;
+  readonly deleting = signal<string | null>(null);
 
   ngOnInit(): void {
     this.venueService.loadVendorVenues();
   }
+
+  deleteVenue(id:string):void{
+    if(!confirm('Are you sure you want to delete this venue?')) return;
+    this.deleting.set(id);
+    this.venueService.deleteVenue(id).subscribe(({
+      next:()=>{
+        this.venueService.loadVendorVenues();
+        this.deleting.set(null);
+      },
+      error:() => this.deleting.set(null),
+    }))
+  }
+
+
 }
