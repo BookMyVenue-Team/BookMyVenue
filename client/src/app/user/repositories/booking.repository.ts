@@ -13,7 +13,7 @@ export class BookingRepository {
 
   getUserBookings(): Observable<PaginationResponse<Booking>> {
     return this.http.get<PaginationResponse<Booking>>(
-      `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.BASE}`
+      `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.MY_BOOKINGS}`
     );
   }
 
@@ -25,14 +25,14 @@ export class BookingRepository {
 
   createBooking(payload: CreateBookingRequest): Observable<ApiResponse<Booking>> {
     return this.http.post<ApiResponse<Booking>>(
-      `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.BASE}`,
+      `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.CREATE_WITH_SLOT(payload.venueId, payload.slotTemplateId)}`,
       payload
     );
   }
 
   cancelBooking(id: string): Observable<ApiResponse<Booking>> {
-    return this.http.patch<ApiResponse<Booking>>(
-      `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.BY_ID(id)}`,
+    return this.http.post<ApiResponse<Booking>>(
+      `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.CANCEL(id)}`,
       { status: 'cancelled' }
     );
   }

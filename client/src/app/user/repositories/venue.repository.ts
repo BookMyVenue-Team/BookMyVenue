@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../core/config/environment';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constant';
 import { Venue, VenueFilter } from '../../shared/models/venue.model';
@@ -22,12 +22,24 @@ export class VenueRepository {
     return this.http.get<Venue[]>(
       `${this.apiUrl}${API_ENDPOINTS.VENUES.PUBLIC_BASE}`,
       { params }
+    ).pipe(
+      map(venues => (venues || []).map(venue => ({
+        ...venue,
+        id: String(venue.id),
+        imageUrls: venue.imageUrls || []
+      })))
     );
   }
 
   getVenueById(id: string): Observable<Venue> {
     return this.http.get<Venue>(
       `${this.apiUrl}${API_ENDPOINTS.VENUES.PUBLIC_BY_ID(id)}`
+    ).pipe(
+      map(venue => ({
+        ...venue,
+        id: String(venue.id),
+        imageUrls: venue.imageUrls || []
+      }))
     );
   }
   

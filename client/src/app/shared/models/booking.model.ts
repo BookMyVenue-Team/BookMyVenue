@@ -18,6 +18,7 @@ export interface Booking {
 
 export interface CreateBookingRequest {
   venueId: string;
+  slotTemplateId: number;
   eventDate: string;
   startTime: string;
   endTime: string;

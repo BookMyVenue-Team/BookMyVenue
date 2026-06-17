@@ -23,6 +23,7 @@ export const API_ENDPOINTS = {
     // Public endpoints (no auth required)
     PUBLIC_BASE:'/v1/venues',
     PUBLIC_BY_ID:(id:string) =>   `/v1/venues/${id}`,
+    SLOTS: (venueId: string) => `/v1/venues/${venueId}/slots`,
 
     // Vendor endpoints (require VENDOR role)
 
@@ -35,6 +36,10 @@ export const API_ENDPOINTS = {
     BY_USER: (userId: string) => `/users/${userId}/bookings`,
     BY_VENUE: (venueId: string) => `/venues/${venueId}/bookings`,
     BY_VENDOR: '/vendor/bookings',
+    MY_BOOKINGS: '/v1/bookings/my-bookings',
+    CREATE_WITH_SLOT:(venueId: string, slotId: number) => `/v1/venues/${venueId}/slots/${slotId}/bookings`,
+    CANCEL:(bookingId: string) => `/v1/bookings/${bookingId}/cancel`,
+    
   },
   ADMIN: {
     DASHBOARD: '/admin/dashboard',
