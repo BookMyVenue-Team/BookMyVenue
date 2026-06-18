@@ -1,6 +1,7 @@
 package com.bookmyvenue.server.user.repository;
 
 import com.bookmyvenue.server.user.entity.User;
+import com.bookmyvenue.server.user.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -27,4 +28,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByPhone(String phone);
 
     UUID id(UUID id);
+
+    /**
+     * To check by role of the user
+     * @param role
+     * @return
+     */
+    long countByRole(Role role);
 }

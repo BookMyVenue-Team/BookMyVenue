@@ -3,6 +3,8 @@ export interface AuthResponse {
   name: string;
   email: string;
   role: string;
+  accessToken?: string;
+  refreshToken?: string;
 }
 
 export interface AuthUser {
@@ -34,4 +36,13 @@ export interface ResetPasswordRequest {
   token: string;
   password: string;
   confirmPassword: string;
+}
+
+export interface RefreshTokenApiResponse {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  accessToken: string;
+  refreshToken: string;
 }

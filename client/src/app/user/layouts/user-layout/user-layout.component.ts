@@ -17,9 +17,9 @@ export class UserLayoutComponent {
   readonly sidebarOpen = signal(true);
 
   readonly navItems = [
-    { label: 'Browse Venues', path: '/user/venues', icon: 'search' },
-    { label: 'My Bookings', path: '/user/my-bookings', icon: 'calendar' },
-    { label: 'Profile', path: '/user/profile', icon: 'user' },
+    { label: 'Browse Venues', path: '/user/venues',      icon: 'search',   requiresAuth: false },
+    { label: 'My Bookings',   path: '/user/my-bookings', icon: 'calendar', requiresAuth: true  },
+    { label: 'Profile',       path: '/user/profile',     icon: 'user',     requiresAuth: true  },
   ];
 
   toggleSidebar(): void {

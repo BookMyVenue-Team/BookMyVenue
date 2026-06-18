@@ -48,7 +48,7 @@ docker compose version
 Inside the `server/` directory, create a local `.env` file from the example template:
 
 ```bash
-cp .env.example .env
+cp ..env.example ..env
 ```
 
 Verify the values:

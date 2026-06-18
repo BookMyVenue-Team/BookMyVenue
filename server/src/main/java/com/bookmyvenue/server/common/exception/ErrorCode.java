@@ -75,7 +75,34 @@ public enum ErrorCode {
             HttpStatus.UNAUTHORIZED,
             "INVALID_REFRESH_TOKEN",
             "Invalid or expired token"
+    ),
+    INVALID_TIME_RANGE(HttpStatus.BAD_REQUEST,
+            " INVALID_TIME_RANGE",
+            "End time must be after start time"),
+
+    SLOT_TEMPLATE_NOT_FOUND(HttpStatus.NOT_FOUND,
+            " SLOT_TEMPLATE_NOT_FOUND",
+            "Slot template not found"),
+
+    OVERLAPPING_SLOT_TEMPLATE(HttpStatus.BAD_REQUEST,
+            "OVERLAPPING_SLOT_TEMPLATE",
+            "Slot template overlaps with existing schedule"),
+    SLOT_ALREADY_BOOKED(
+            HttpStatus.CONFLICT,
+            "SLOT_ALREADY_BOOKED",
+            "Selected slot is already booked"
+    ),
+    INVALID_BOOKING_DATE(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_BOOKING_DATE",
+            "Selected date does not match the slot template schedule"
+    ),
+    INVALID_VENUE_STATUS(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_VENUE_STATUS",
+            "Invalid venue status"
     );
+
 
     private final HttpStatus status;
     private final String code;

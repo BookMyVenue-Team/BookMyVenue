@@ -20,6 +20,8 @@ export class SignupComponent {
 
   readonly loading = this.authService.loading;
 
+  readonly venueTypes = ['Weddings', 'Corporate', 'Birthday', 'Conferences', 'Social', 'Outdoor'];
+
   readonly form = this.fb.nonNullable.group({
     firstName: ['', [Validators.required]],
     lastName: ['', [Validators.required]],
