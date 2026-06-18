@@ -28,21 +28,21 @@ export class VenueListComponent implements OnInit {
   ]);
 
   // SWITCH: use dummyVenues for design, venueService.venues for real data
-  readonly venues = this.dummyVenues;
-  // readonly venues = this.venueService.venues;
+  // readonly venues = this.dummyVenues;
+  readonly venues = this.venueService.venues;
 
-  readonly loading = signal(false);
-  // readonly loading = this.venueService.loading;
+  // readonly loading = signal(false);
+  readonly loading = this.venueService.loading;
 
   readonly searchQuery = signal('');
 
   ngOnInit(): void {
     // Comment this in when switching to real data:
-    // this.venueService.loadVenues();
+    this.venueService.loadVenues();
   }
 
   onSearch(query: string): void {
     this.searchQuery.set(query);
-    // this.venueService.loadVenues({ search: query });
+    this.venueService.loadVenues({ search: query });
   }
 }

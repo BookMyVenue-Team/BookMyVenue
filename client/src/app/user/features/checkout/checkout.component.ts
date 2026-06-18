@@ -9,15 +9,11 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 import { AppValidators } from '../../../shared/utils/validators';
+import { SlotService } from '../../services/slot.services';
+import { TimeSlot } from '../../../shared/models/slot.model';
+import { CreateBookingRequest } from '../../../shared/models/booking.model';
 
-export interface TimeSlot {
-  id: string;
-  label: string;
-  time: string;
-  duration: string;
-  available: boolean;
-  surcharge: number;
-}
+
 
 export interface Amenity {
   id: string;
@@ -39,14 +35,15 @@ export class CheckoutComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
-  // private readonly venueService = inject(VenueService);   // uncomment when using real data
-  // private readonly bookingService = inject(BookingService); // uncomment when using real data
+  private readonly venueService = inject(VenueService);
+  private readonly bookingService = inject(BookingService);
+  private readonly slotService = inject(SlotService);
 
   readonly venue = signal<Venue | null>(null);
   readonly loading = signal(true);
   readonly submitting = signal(false);
 
-  readonly selectedSlotId = signal<string | null>(null);
+  readonly selectedSlotId = signal<number | null>(null);
   readonly selectedAmenityIds = signal<Set<string>>(new Set());
 
   // ── DUMMY VENUES (remove when switching to real backend) ────────────────
@@ -60,15 +57,7 @@ export class CheckoutComponent implements OnInit {
   };
   // ────────────────────────────────────────────────────────────────────────
 
-  readonly slots: TimeSlot[] = [
-    { id: 's1', label: 'Morning', time: '09:00 AM – 12:00 PM', duration: '3 hrs', available: true, surcharge: 0 },
-    { id: 's2', label: 'Afternoon', time: '12:00 PM – 04:00 PM', duration: '4 hrs', available: true, surcharge: 2000 },
-    { id: 's3', label: 'Evening', time: '04:00 PM – 08:00 PM', duration: '4 hrs', available: false, surcharge: 3000 },
-    { id: 's4', label: 'Night', time: '08:00 PM – 11:00 PM', duration: '3 hrs', available: true, surcharge: 1500 },
-    { id: 's5', label: 'Full Day', time: '09:00 AM – 11:00 PM', duration: '14 hrs', available: true, surcharge: 8000 },
-    { id: 's6', label: 'Half Day AM', time: '09:00 AM – 02:00 PM', duration: '5 hrs', available: true, surcharge: 1000 },
-  ];
-
+  readonly slots = signal<TimeSlot[]>([]);
   readonly amenities: Amenity[] = [
     { id: 'a1', name: 'Catering Service', desc: 'Full catering for all guests (per head)', price: 500, icon: 'M3 3h2l.4 2M7 13h10l4-4H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
     { id: 'a2', name: 'AV & Sound System', desc: 'Professional PA, lighting & projector', price: 3000, icon: 'M15.536 8.464a5 5 0 010 7.072M12 6a7 7 0 010 12M8.464 8.464a5 5 0 000 7.072M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
@@ -86,7 +75,7 @@ export class CheckoutComponent implements OnInit {
 
   // ── Computed totals ──────────────────────────────────────────────────────
   readonly selectedSlot = computed(() =>
-    this.slots.find(s => s.id === this.selectedSlotId()) ?? null
+    this.slots().find(s => s.id === this.selectedSlotId()) ?? null
   );
 
   readonly amenitiesTotal = computed(() =>
@@ -112,17 +101,29 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     const venueId = this.route.snapshot.paramMap.get('venueId') ?? '';
 
+    // ✅ Switch between dummy and real data HERE only
+    const USE_DUMMY_DATA = false; // Set to false when backend ready
+
+    if (USE_DUMMY_DATA) {
+      this.slots.set(this.slotService.getDummySlots());
+    } else {
+      this.slotService.loadSlotsForVenue(venueId).subscribe({
+        next: (response) => this.slots.set(response.data),
+        error: () => console.error('Failed to load slots'),
+      });
+    }
+
     // SWITCH: use dummyVenues for design, venueService for real data
-    this.venue.set(this.dummyVenues[venueId] ?? null);
-    this.loading.set(false);
+    // this.venue.set(this.dummyVenues[venueId] ?? null);
+    // this.loading.set(false);
 
     // Uncomment when switching to real data:
-    // if (venueId) {
-    //   this.venueService.loadVenueById(venueId).subscribe({
-    //     next: (venue) => { this.venue.set(venue); this.loading.set(false); },
-    //     error: () => this.loading.set(false),
-    //   });
-    // }
+    if (venueId) {
+      this.venueService.loadVenueById(venueId).subscribe({
+        next: (venue) => { this.venue.set(venue); this.loading.set(false); },
+        error: () => this.loading.set(false),
+      });
+    }
   }
 
   selectSlot(slot: TimeSlot): void {
@@ -146,13 +147,22 @@ export class CheckoutComponent implements OnInit {
     if (!this.selectedSlotId()) return;
     if (this.form.valid && this.venue()) {
       this.submitting.set(true);
-      // bookingService.createBooking(...) goes here
-      setTimeout(() => {
-        this.submitting.set(false);
-        this.router.navigate(['/user/bookings']);
-      }, 1500);
-    } else {
-      this.form.markAllAsTouched();
+
+      const selectedSlot = this.slots().find(s => s.id === this.selectedSlotId());
+      
+      if (!selectedSlot) return;
+
+      const payload: CreateBookingRequest = {
+        venueId: this.venue()!.id,
+        slotTemplateId: selectedSlot.id,
+        eventDate: this.form.value.eventDate!,
+        startTime: selectedSlot.startTime,
+        endTime: selectedSlot.endTime,      
+        guestCount: Number(this.form.value.guestCount),
+        notes: this.form.value.notes,
+      };
+
+      this.bookingService.createBooking(payload);
     }
   }
 }

@@ -17,7 +17,7 @@ import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 export class VenueDetailsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  // private readonly venueService = inject(VenueService); // uncomment when switching to real data
+  private readonly venueService = inject(VenueService);
 
   readonly venue = signal<Venue | null>(null);
   readonly loading = signal(true);
@@ -94,17 +94,17 @@ export class VenueDetailsComponent implements OnInit {
     const id = this.route.snapshot.paramMap.get('id') ?? '';
 
     // SWITCH: use dummyVenues for design, venueService for real data
-    const venue = this.dummyVenues[id] ?? null;
-    this.venue.set(venue);
-    this.loading.set(false);
+    // const venue = this.dummyVenues[id] ?? null;
+    // this.venue.set(venue);
+    // this.loading.set(false);
 
     // Uncomment below and remove the two lines above when switching to real data:
-    // if (id) {
-    //   this.venueService.loadVenueById(id).subscribe({
-    //     next: (venue) => { this.venue.set(venue); this.loading.set(false); },
-    //     error: () => this.loading.set(false),
-    //   });
-    // }
+    if (id) {
+      this.venueService.loadVenueById(id).subscribe({
+        next: (venue) => { this.venue.set(venue); this.loading.set(false); },
+        error: () => this.loading.set(false),
+      });
+    }
   }
 
   selectImage(index: number): void {

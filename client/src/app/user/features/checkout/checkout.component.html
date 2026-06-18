@@ -73,7 +73,7 @@
           </div>
           <div class="px-6 py-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              @for (slot of slots; track slot.id) {
+              @for (slot of slots(); track slot.id) {
                 <button
                   type="button"
                   [disabled]="!slot.available"
@@ -105,7 +105,7 @@
                     </svg>
                     <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">{{ slot.label }}</span>
                   </div>
-                  <p class="text-sm font-bold text-gray-900 mb-1">{{ slot.time }}</p>
+                  <p class="text-sm font-bold text-gray-900 mb-1">{{ slot.startTime }} - {{ slot.endTime }}</p>
                   <div class="flex items-center justify-between">
                     <span class="text-xs text-gray-400">{{ slot.duration }}</span>
                     @if (slot.surcharge > 0) {
@@ -243,7 +243,7 @@
               <div class="flex items-start justify-between text-sm gap-2">
                 <div>
                   <p class="text-gray-500">Slot: {{ slot.label }}</p>
-                  <p class="text-xs text-gray-400">{{ slot.time }}</p>
+                  <p class="text-xs text-gray-400">{{ slot.startTime }} - {{ slot.endTime }}</p>
                 </div>
                 @if (slot.surcharge > 0) {
                   <span class="font-semibold text-gray-900 shrink-0">+ {{ slot.surcharge | currencyFormat }}</span>
