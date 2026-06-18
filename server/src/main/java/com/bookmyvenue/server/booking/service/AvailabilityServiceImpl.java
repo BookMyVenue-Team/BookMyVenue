@@ -94,6 +94,7 @@ public class AvailabilityServiceImpl
                 )
                 .map(template ->
                         new AvailabilityResponse(
+                                template.getId(),
                                 template.getStartTime(),
                                 template.getEndTime()
                         )
