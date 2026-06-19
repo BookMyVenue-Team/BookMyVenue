@@ -97,6 +97,26 @@ public enum ErrorCode {
             "INVALID_BOOKING_DATE",
             "Selected date does not match the slot template schedule"
     ),
+    INVALID_BOOKING_STATUS(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_BOOKING_STATUS",
+            "Booking is not eligible for payment"
+    ),
+    PAYMENT_ALREADY_EXISTS(
+            HttpStatus.CONFLICT,
+            "PAYMENT_ALREADY_EXISTS",
+            "Payment already exists for this booking"
+    ),
+    PAYMENT_NOT_FOUND(
+            HttpStatus.NOT_FOUND,
+            "PAYMENT_NOT_FOUND",
+            "Payment not found"
+    ),
+    INVALID_PAYMENT_SIGNATURE(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_PAYMENT_SIGNATURE",
+            "Invalid payment signature"
+    ),
     INVALID_VENUE_STATUS(
             HttpStatus.BAD_REQUEST,
             "INVALID_VENUE_STATUS",
