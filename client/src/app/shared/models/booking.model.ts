@@ -1,25 +1,19 @@
 import { BookingStatus } from '../enums/booking-status.enum';
 
 export interface Booking {
-  id: string;
-  userId: string;
-  venueId: string;
-  venueName: string;
-  eventDate: string;
-  startTime: string;
-  endTime: string;
-  guestCount: number;
-  totalAmount: number;
+  id: number;
+  venueId: number;
+  slotTemplateId: number;
+  bookingDate: string;
   status: BookingStatus;
-  notes: string;
-  createdAt: string;
-  updatedAt: string;
+  totalAmount: number;
+  expiresAt: string;
 }
 
 export interface CreateBookingRequest {
   venueId: string;
   slotTemplateId: number;
-  eventDate: string;
+  bookingDate: string;
   startTime: string;
   endTime: string;
   guestCount: number;

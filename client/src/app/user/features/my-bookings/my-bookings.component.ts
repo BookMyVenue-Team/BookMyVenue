@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
+import { Booking } from '../../../shared/models/booking.model';
 import { BookingStatus } from '../../../shared/enums/booking-status.enum';
 import { TableColumn } from '../../../shared/components/table/table.component';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
@@ -17,21 +19,32 @@ import { CurrencyFormatPipe } from '../../../shared/pipes/currency-format.pipe';
 })
 export class MyBookingsComponent implements OnInit {
   private readonly bookingService = inject(BookingService);
+  private readonly router = inject(Router);
 
   readonly bookings = this.bookingService.bookings;
   readonly loading = this.bookingService.loading;
 
+  // Expose enum to the template so we can compare booking.status against it
+  readonly BookingStatus = BookingStatus;
+
   readonly columns: TableColumn[] = [
-    { key: 'venueName', label: 'Venue', sortable: true },
-    { key: 'eventDate', label: 'Date', sortable: true },
-    { key: 'startTime', label: 'Time' },
-    { key: 'guestCount', label: 'Guests' },
+    { key: 'venueId', label: 'Venue ID', sortable: true },
+    { key: 'bookingDate', label: 'Date', sortable: true },
+    { key: 'slotTemplateId', label: 'Slot' },
     { key: 'totalAmount', label: 'Amount', sortable: true },
     { key: 'status', label: 'Status', sortable: true },
   ];
 
   ngOnInit(): void {
     this.bookingService.loadUserBookings();
+  }
+
+  onView(booking: Booking): void {
+    this.router.navigate(['/user/my-bookings', booking.id]);
+  }
+
+  onCancel(booking: Booking): void {
+    this.bookingService.cancelBooking(booking.id);
   }
 
   getStatusClass(status: string): string {

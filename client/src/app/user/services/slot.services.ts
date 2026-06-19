@@ -1,10 +1,16 @@
 // src/app/user/services/slot.service.ts
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../core/config/environment';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constant';
 import { TimeSlot } from '../../shared/models/slot.model';
+
+export interface AvailableSlotResponse {
+  slotTemplateId: number;
+  startTime: string;
+  endTime: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class SlotService {
@@ -14,10 +20,50 @@ export class SlotService {
   readonly slots = signal<TimeSlot[]>([]);
   readonly loading = signal(false);
 
-  loadSlotsForVenue(venueId: string): Observable<{ data: TimeSlot[] }> {
-    return this.http.get<{ data: TimeSlot[] }>(
-      `${this.apiUrl}${API_ENDPOINTS.VENUES.SLOTS(venueId)}`
+  loadSlotsForVenue(venueId: string, date: string): Observable<TimeSlot[]> {
+    const params = new HttpParams().set('date', date);
+    return this.http.get<AvailableSlotResponse[]>(
+      `${this.apiUrl}${API_ENDPOINTS.VENUES.AVAILABILITY(venueId)}`,
+      { params }
+    ).pipe(
+      map(slots => (slots || []).map(slot => ({
+        id: slot.slotTemplateId,
+        label: this.getLabelForSlot(slot.startTime),
+        startTime: slot.startTime.substring(0, 5),
+        endTime: slot.endTime.substring(0, 5),
+        duration: this.formatDuration(slot.startTime, slot.endTime),
+        available: true,
+        surcharge: 0
+      })))
     );
+  }
+
+  private getLabelForSlot(startTime: string): string {
+    const parts = startTime.split(':').map(Number);
+    const hour = parts[0] || 0;
+    if (hour < 12) return 'Morning';
+    if (hour < 16) return 'Afternoon';
+    if (hour < 19) return 'Evening';
+    return 'Night';
+  }
+
+  private parseTimeToMinutes(timeStr: string): number {
+    const parts = timeStr.split(':').map(Number);
+    const h = parts[0] || 0;
+    const m = parts[1] || 0;
+    return h * 60 + m;
+  }
+
+  private formatDuration(start: string, end: string): string {
+    const startMins = this.parseTimeToMinutes(start);
+    const endMins = this.parseTimeToMinutes(end);
+    let diff = endMins - startMins;
+    if (diff < 0) {
+      diff += 24 * 60; // Handle overnight slots
+    }
+    const hours = Math.floor(diff / 60);
+    const mins = diff % 60;
+    return mins > 0 ? `${hours} hrs ${mins} mins` : `${hours} hrs`;
   }
 
 

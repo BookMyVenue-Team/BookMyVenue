@@ -19,8 +19,8 @@ export class BookingService {
     });
   }
 
-  updateBookingStatus(id: string, status: string): void {
-    this.bookingRepository.updateBookingStatus(id, status).subscribe({
+  updateBookingStatus(id: number, status: string): void {
+    this.bookingRepository.updateBookingStatus(String(id), status).subscribe({
       next: (response) => {
         this.bookings.update(list => list.map(b => b.id === id ? response.data : b));
         this.notification.success(`Booking ${status}`);

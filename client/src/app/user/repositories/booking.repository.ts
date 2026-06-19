@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../core/config/environment';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constant';
 import { Booking, CreateBookingRequest } from '../../shared/models/booking.model';
@@ -12,8 +12,18 @@ export class BookingRepository {
   private readonly apiUrl = environment.apiUrl;
 
   getUserBookings(): Observable<PaginationResponse<Booking>> {
-    return this.http.get<PaginationResponse<Booking>>(
+    // Backend returns plain array, wrap it in pagination format
+    return this.http.get<Booking[]>(
       `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.MY_BOOKINGS}`
+    ).pipe(
+      map(data => ({
+        success: true,
+        data: data,
+        total: data.length,
+        page: 1,
+        limit: data.length,
+        totalPages: 1
+      }))
     );
   }
 
