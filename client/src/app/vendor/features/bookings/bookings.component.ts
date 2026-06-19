@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BookingService } from '../../services/booking.service';
+import { BookingStatus } from '../../../shared/enums/booking-status.enum';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
@@ -17,9 +18,10 @@ export class BookingsComponent implements OnInit {
   private readonly bookingService = inject(BookingService);
   readonly bookings = this.bookingService.bookings;
   readonly loading = this.bookingService.loading;
+  readonly BookingStatus = BookingStatus;
 
   ngOnInit(): void { this.bookingService.loadVendorBookings(); }
 
-  onApprove(id: string): void { this.bookingService.updateBookingStatus(id, 'confirmed'); }
-  onReject(id: string): void { this.bookingService.updateBookingStatus(id, 'rejected'); }
+  onApprove(id: number): void { this.bookingService.updateBookingStatus(id, 'confirmed'); }
+  onReject(id: number): void { this.bookingService.updateBookingStatus(id, 'rejected'); }
 }

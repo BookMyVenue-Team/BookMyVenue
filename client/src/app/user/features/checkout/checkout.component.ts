@@ -101,23 +101,31 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     const venueId = this.route.snapshot.paramMap.get('venueId') ?? '';
 
-    // ✅ Switch between dummy and real data HERE only
-    const USE_DUMMY_DATA = false; // Set to false when backend ready
+    // Watch for date changes to fetch available slots
+    this.form.controls.eventDate.valueChanges.subscribe({
+      next: (date) => {
+        this.selectedSlotId.set(null);
+        if (!date || this.form.controls.eventDate.invalid) {
+          this.slots.set([]);
+          return;
+        }
 
-    if (USE_DUMMY_DATA) {
-      this.slots.set(this.slotService.getDummySlots());
-    } else {
-      this.slotService.loadSlotsForVenue(venueId).subscribe({
-        next: (response) => this.slots.set(response.data),
-        error: () => console.error('Failed to load slots'),
-      });
-    }
+        const USE_DUMMY_DATA = false; // Set to false when backend ready
 
-    // SWITCH: use dummyVenues for design, venueService for real data
-    // this.venue.set(this.dummyVenues[venueId] ?? null);
-    // this.loading.set(false);
+        if (USE_DUMMY_DATA) {
+          this.slots.set(this.slotService.getDummySlots());
+        } else {
+          this.slotService.loadSlotsForVenue(venueId, date).subscribe({
+            next: (slots) => this.slots.set(slots),
+            error: () => {
+              console.error('Failed to load slots');
+              this.slots.set([]);
+            },
+          });
+        }
+      }
+    });
 
-    // Uncomment when switching to real data:
     if (venueId) {
       this.venueService.loadVenueById(venueId).subscribe({
         next: (venue) => { this.venue.set(venue); this.loading.set(false); },
@@ -155,9 +163,9 @@ export class CheckoutComponent implements OnInit {
       const payload: CreateBookingRequest = {
         venueId: this.venue()!.id,
         slotTemplateId: selectedSlot.id,
-        eventDate: this.form.value.eventDate!,
+        bookingDate: this.form.value.eventDate!,
         startTime: selectedSlot.startTime,
-        endTime: selectedSlot.endTime,      
+        endTime: selectedSlot.endTime,
         guestCount: Number(this.form.value.guestCount),
         notes: this.form.value.notes,
       };

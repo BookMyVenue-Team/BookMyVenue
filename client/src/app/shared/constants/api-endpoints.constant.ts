@@ -23,7 +23,7 @@ export const API_ENDPOINTS = {
     // Public endpoints (no auth required)
     PUBLIC_BASE:'/v1/venues',
     PUBLIC_BY_ID:(id:string) =>   `/v1/venues/${id}`,
-    SLOTS: (venueId: string) => `/v1/venues/${venueId}/slots`,
+    AVAILABILITY: (venueId: string) => `/v1/venues/${venueId}/availability`,
 
     // Vendor endpoints (require VENDOR role)
 

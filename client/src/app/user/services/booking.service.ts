@@ -39,8 +39,8 @@ export class BookingService {
     });
   }
 
-  cancelBooking(id: string): void {
-    this.bookingRepository.cancelBooking(id).subscribe({
+  cancelBooking(id: number): void {
+    this.bookingRepository.cancelBooking(String(id)).subscribe({
       next: () => {
         this.bookings.update(list =>
           list.map(b => b.id === id ? { ...b, status: 'cancelled' as Booking['status'] } : b)
