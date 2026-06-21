@@ -1,5 +1,6 @@
 package com.bookmyvenue.server.admin.controller;
 
+import com.bookmyvenue.server.admin.dto.response.AdminUserResponse;
 import com.bookmyvenue.server.admin.dto.response.AdminVenueResponse;
 import com.bookmyvenue.server.admin.dto.response.DashboardResponse;
 import com.bookmyvenue.server.admin.service.AdminService;
@@ -106,4 +107,33 @@ public class AdminController {
     public void rejectVenue(@PathVariable Long venueId) {
         adminService.rejectVenue(venueId);
     }
+
+
+    @Operation(summary = "Get all users", description = "Returns a paginated list of all registered users.")
+    @ApiResponses({@ApiResponse(responseCode = "200",description = "Users retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @GetMapping("/users")
+    public Page<AdminUserResponse> getUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return adminService.getUsers(page, size);
+    }
+
+
+    @Operation(summary = "Get all vendors", description = "Returns a paginated list of all registered venue vendors.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Vendors retrieved successfully"),
+            @ApiResponse(responseCode = "403", description = "Access denied")
+    })
+    @GetMapping("/vendors")
+    public Page<AdminUserResponse> getVendors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return adminService.getVendors(page, size);
+    }
+
+
+
 }
