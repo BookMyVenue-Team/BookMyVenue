@@ -4,6 +4,7 @@ import { provideHttpClient, withInterceptors, withXsrfConfiguration } from '@ang
 import { routes } from './core/app.routes';
 import { appProviders } from './core/providers/app-providers';
 import { errorInterceptor } from './shared/interceptors/error.interceptor';
+import { userAuthInterceptor } from './user/interceptors/user-auth.interceptor';
 
 
 export const appConfig: ApplicationConfig = {
@@ -12,6 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(
       withInterceptors([
+        userAuthInterceptor,
         errorInterceptor,
       ]),
       withXsrfConfiguration({

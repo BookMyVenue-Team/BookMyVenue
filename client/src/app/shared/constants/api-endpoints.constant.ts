@@ -42,11 +42,14 @@ export const API_ENDPOINTS = {
     
   },
   ADMIN: {
-    DASHBOARD: '/admin/dashboard',
-    USERS: '/admin/users',
-    VENDORS: '/admin/vendors',
-    VENUES: '/admin/venues',
-    BOOKINGS: '/admin/bookings',
-    ANALYTICS: '/admin/analytics',
+    DASHBOARD: '/v1/admin/dashboard',
+    USERS: '/v1/admin/users',
+    VENDORS: '/v1/admin/vendors',
+    VENUES: '/v1/admin/venues',
+    PENDING_VENUES: '/v1/admin/venues/pending',
+    VENUE_APPROVE: (id: number) => `/v1/admin/venues/${id}/approve`,
+    VENUE_REJECT:  (id: number) => `/v1/admin/venues/${id}/reject`,
+    BOOKINGS: '/v1/admin/bookings',
+    ANALYTICS: '/v1/admin/analytics',
   },
 } as const;
