@@ -1,10 +1,17 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { AdminVenueService } from '../../services/venue.service';
 
 @Component({
-  selector: 'app-admin-dashboard', standalone: true,
-  templateUrl: './dashboard.component.html', styleUrl: './dashboard.component.css',
+  selector: 'app-admin-dashboard',
+  standalone: true,
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardComponent {
-  readonly stats = signal({ totalUsers: 0, totalVendors: 0, totalVenues: 0, totalBookings: 0, totalRevenue: 0 });
+export class DashboardComponent implements OnInit {
+  readonly venueService = inject(AdminVenueService);
+
+  ngOnInit(): void {
+    this.venueService.loadDashboard();
+  }
 }

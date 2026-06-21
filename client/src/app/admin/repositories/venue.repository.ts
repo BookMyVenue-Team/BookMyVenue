@@ -3,20 +3,60 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../core/config/environment';
 import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constant';
-import { Venue } from '../../shared/models/venue.model';
-import { ApiResponse, PaginationResponse } from '../../shared/models/api-response.model';
+
+export interface AdminVenue {
+  id: number;
+  name: string;
+  district: string;
+  address: string;
+  capacity: number;
+  ownerName: string;
+  ownerEmail: string;
+  status?: string;
+}
+
+export interface DashboardStats {
+  totalUsers: number;
+  totalVendors: number;
+  totalVenues: number;
+  pendingVenues: number;
+  approvedVenues: number;
+  rejectedVenues: number;
+  totalBookings: number;
+}
+
+export interface SpringPage<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AdminVenueRepository {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = environment.apiUrl;
 
-  getVenues(page = 1, limit = 10): Observable<PaginationResponse<Venue>> {
-    const params = new HttpParams().set('page', page).set('limit', limit);
-    return this.http.get<PaginationResponse<Venue>>(`${this.apiUrl}${API_ENDPOINTS.ADMIN.VENUES}`, { params });
+  getDashboard(): Observable<DashboardStats> {
+    return this.http.get<DashboardStats>(`${this.apiUrl}${API_ENDPOINTS.ADMIN.DASHBOARD}`);
   }
 
-  toggleVenueStatus(id: string, status: string): Observable<ApiResponse<Venue>> {
-    return this.http.patch<ApiResponse<Venue>>(`${this.apiUrl}${API_ENDPOINTS.VENUES.PUBLIC_BY_ID(id)}`, { status });
+  getAllVenues(page = 0, size = 10): Observable<SpringPage<AdminVenue>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<SpringPage<AdminVenue>>(`${this.apiUrl}${API_ENDPOINTS.ADMIN.VENUES}`, { params });
+  }
+
+  getPendingVenues(page = 0, size = 10): Observable<SpringPage<AdminVenue>> {
+    const params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<SpringPage<AdminVenue>>(`${this.apiUrl}${API_ENDPOINTS.ADMIN.PENDING_VENUES}`, { params });
+  }
+
+  approveVenue(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}${API_ENDPOINTS.ADMIN.VENUE_APPROVE(id)}`, {});
+  }
+
+  rejectVenue(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}${API_ENDPOINTS.ADMIN.VENUE_REJECT(id)}`, {});
   }
 }
