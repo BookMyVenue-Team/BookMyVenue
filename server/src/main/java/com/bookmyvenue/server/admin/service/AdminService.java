@@ -1,5 +1,6 @@
 package com.bookmyvenue.server.admin.service;
 
+import com.bookmyvenue.server.admin.dto.response.AdminUserResponse;
 import com.bookmyvenue.server.admin.dto.response.AdminVenueResponse;
 import com.bookmyvenue.server.admin.dto.response.DashboardResponse;
 import com.bookmyvenue.server.venue.dto.response.VenueResponse;
@@ -26,4 +27,8 @@ public interface AdminService {
 
     Page<AdminVenueResponse> getAllVenues(int page, int size);
 
+
+    Page<AdminUserResponse> getUsers(int page, int size);
+
+    Page<AdminUserResponse> getVendors(int page, int size);
 }

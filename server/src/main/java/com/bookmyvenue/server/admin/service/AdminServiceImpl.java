@@ -1,5 +1,6 @@
 package com.bookmyvenue.server.admin.service;
 
+import com.bookmyvenue.server.admin.dto.response.AdminUserResponse;
 import com.bookmyvenue.server.admin.dto.response.AdminVenueResponse;
 import com.bookmyvenue.server.admin.dto.response.DashboardResponse;
 import com.bookmyvenue.server.booking.repository.BookingRepository;
@@ -72,11 +73,13 @@ public class AdminServiceImpl implements AdminService {
                         .capacity(venue.getCapacity())
                         .ownerName(venue.getOwner().getName())
                         .ownerEmail(venue.getOwner().getEmail())
+                        .status(venue.getStatus())
                         .build());
     }
 
 
     @Override
+    @Transactional
     public void approveVenue(Long venueId) {
 
         Venue venue = venueRepository.findById(venueId)
@@ -91,6 +94,7 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Override
+    @Transactional
     public void rejectVenue(Long venueId) {
 
         Venue venue = venueRepository.findById(venueId)
@@ -133,4 +137,33 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
+    @Override
+    public Page<AdminUserResponse> getUsers(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository
+                .findByRole(Role.USER, pageable)
+                .map(user -> AdminUserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .role(user.getRole())
+                        .build());
+    }
+
+    @Override
+    public Page<AdminUserResponse> getVendors(int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository
+                .findByRole(Role.VENDOR, pageable)
+                .map(user -> AdminUserResponse.builder()
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .phone(user.getPhone())
+                        .role(user.getRole())
+                        .build());
+    }
 }
