@@ -23,6 +23,7 @@ export const ROUTE_PATHS = {
     BOOKINGS: 'bookings',
     ANALYTICS: 'analytics',
     SETTINGS: 'settings',
+    VENUE_SLOTS: 'venues/:id/slots',
   },
   ADMIN: {
     BASE: 'admin',

@@ -18,3 +18,12 @@ export interface ApiError {
   message: string;
   errors?: Record<string, string[]>;
 }
+
+
+export interface SpringPage<T> {
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  number: number;
+  size: number;
+}

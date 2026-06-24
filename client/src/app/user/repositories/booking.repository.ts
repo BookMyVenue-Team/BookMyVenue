@@ -33,17 +33,17 @@ export class BookingRepository {
     );
   }
 
-  createBooking(payload: CreateBookingRequest): Observable<ApiResponse<Booking>> {
-    return this.http.post<ApiResponse<Booking>>(
+  createBooking(payload: CreateBookingRequest): Observable<Booking> {
+    return this.http.post<Booking>(
       `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.CREATE_WITH_SLOT(payload.venueId, payload.slotTemplateId)}`,
       payload
     );
   }
 
-  cancelBooking(id: string): Observable<ApiResponse<Booking>> {
-    return this.http.post<ApiResponse<Booking>>(
+  cancelBooking(id: string): Observable<void> {
+    return this.http.post<void>(
       `${this.apiUrl}${API_ENDPOINTS.BOOKINGS.CANCEL(id)}`,
-      { status: 'cancelled' }
+      {}
     );
   }
 }

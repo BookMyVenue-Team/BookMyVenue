@@ -44,7 +44,7 @@
               <button (click)="onView(booking)" class="text-indigo-600 hover:text-indigo-800 font-medium text-xs mr-3">
                 View
               </button>
-              @if (booking.status === BookingStatus.Confirmed || booking.status === BookingStatus.Pending) {
+              @if (booking.status === BookingStatus.CONFIRMED || booking.status === BookingStatus.PENDING) {
               <button (click)="onCancel(booking)" class="text-red-600 hover:text-red-800 font-medium text-xs">
                 Cancel
               </button>

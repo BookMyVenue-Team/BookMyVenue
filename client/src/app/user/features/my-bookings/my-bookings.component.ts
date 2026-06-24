@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { BookingService } from '../../services/booking.service';
 import { Booking } from '../../../shared/models/booking.model';
 import { BookingStatus } from '../../../shared/enums/booking-status.enum';
-import { TableColumn } from '../../../shared/components/table/table.component';
 import { LoaderComponent } from '../../../shared/components/loader/loader.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
@@ -27,14 +26,6 @@ export class MyBookingsComponent implements OnInit {
   // Expose enum to the template so we can compare booking.status against it
   readonly BookingStatus = BookingStatus;
 
-  readonly columns: TableColumn[] = [
-    { key: 'venueId', label: 'Venue ID', sortable: true },
-    { key: 'bookingDate', label: 'Date', sortable: true },
-    { key: 'slotTemplateId', label: 'Slot' },
-    { key: 'totalAmount', label: 'Amount', sortable: true },
-    { key: 'status', label: 'Status', sortable: true },
-  ];
-
   ngOnInit(): void {
     this.bookingService.loadUserBookings();
   }
@@ -49,10 +40,10 @@ export class MyBookingsComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case BookingStatus.Confirmed: return 'bg-green-100 text-green-700';
-      case BookingStatus.Pending: return 'bg-yellow-100 text-yellow-700';
-      case BookingStatus.Cancelled: return 'bg-red-100 text-red-700';
-      case BookingStatus.Completed: return 'bg-blue-100 text-blue-700';
+      case BookingStatus.CONFIRMED: return 'bg-green-100 text-green-700';
+      case BookingStatus.PENDING: return 'bg-yellow-100 text-yellow-700';
+      case BookingStatus.CANCELLED: return 'bg-red-100 text-red-700';
+      case BookingStatus.EXPIRED: return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   }
