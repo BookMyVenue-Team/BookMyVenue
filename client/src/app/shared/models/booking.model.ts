@@ -28,3 +28,18 @@ export interface UpdateBookingRequest {
   status?: BookingStatus;
   notes?: string;
 }
+
+export interface PaymentOrder {
+  paymentId: number;
+  bookingId: number;
+  razorpayOrderId: string;
+  amount: number;
+  status: string;
+}
+
+export interface VerifyPaymentRequest {
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+}
+

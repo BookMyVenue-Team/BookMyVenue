@@ -29,6 +29,8 @@ export const API_ENDPOINTS = {
 
     VENDOR_BASE: '/v1/vendor/venues',
     VENDOR_BY_ID: (id: string) => `/v1/vendor/venues/${id}`,
+    SLOTS_BY_VENUE: (venueId: string) => `/v1/venues/${venueId}/slots`,
+    DELETE_SLOT: (templateId: number) => `/v1/venues/slots/${templateId}`,
   },
   BOOKINGS: {
     BASE: '/bookings',
@@ -51,5 +53,9 @@ export const API_ENDPOINTS = {
     VENUE_REJECT:  (id: number) => `/v1/admin/venues/${id}/reject`,
     BOOKINGS: '/v1/admin/bookings',
     ANALYTICS: '/v1/admin/analytics',
+  },
+  PAYMENTS: {
+  CREATE: (bookingId: number) => `/v1/payments/${bookingId}`,
+  VERIFY: '/v1/payments/verify',
   },
 } as const;

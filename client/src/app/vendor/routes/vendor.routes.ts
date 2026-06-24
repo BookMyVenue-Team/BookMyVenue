@@ -18,6 +18,7 @@ export const VENDOR_ROUTES: Routes = [
       { path: ROUTE_PATHS.VENDOR.BOOKINGS, loadComponent: () => import('../features/bookings/bookings.component').then(m => m.BookingsComponent) },
       { path: ROUTE_PATHS.VENDOR.ANALYTICS, loadComponent: () => import('../features/analytics/analytics.component').then(m => m.AnalyticsComponent) },
       { path: ROUTE_PATHS.VENDOR.SETTINGS, loadComponent: () => import('../features/settings/settings.component').then(m => m.SettingsComponent) },
+      { path: ROUTE_PATHS.VENDOR.VENUE_SLOTS, loadComponent: () => import('../features/slot-management/slot-management.component').then(m => m.SlotManagementComponent) },
       { path: '', redirectTo: ROUTE_PATHS.VENDOR.DASHBOARD, pathMatch: 'full' },
     ],
   },
