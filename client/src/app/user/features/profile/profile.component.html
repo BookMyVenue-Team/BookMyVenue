@@ -16,20 +16,12 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
-          <app-input
-            label="First Name"
-            formControlName="firstName"
-            [required]="true"
-            [error]="form.controls.firstName.touched && form.controls.firstName.errors ? 'First name is required' : ''"
-          />
-          <app-input
-            label="Last Name"
-            formControlName="lastName"
-            [required]="true"
-            [error]="form.controls.lastName.touched && form.controls.lastName.errors ? 'Last name is required' : ''"
-          />
-        </div>
+        <app-input
+          label="Full Name"
+          formControlName="name"
+          [required]="true"
+          [error]="form.controls.name.touched && form.controls.name.errors ? 'Name is required' : ''"
+        />
 
         <app-input
           label="Phone Number"

@@ -13,6 +13,7 @@ import { SlotService } from '../../services/slot.services';
 import { TimeSlot } from '../../../shared/models/slot.model';
 import { CreateBookingRequest, VerifyPaymentRequest } from '../../../shared/models/booking.model';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { environment } from '../../../core/config/environment';
 
 declare var Razorpay: any;
 
@@ -124,7 +125,7 @@ export class CheckoutComponent implements OnInit {
     this.paymentRepository.createPaymentOrder(bookingId).subscribe({
       next: (order) => {
         const options = {
-          key: '',  // Leave empty — Razorpay key comes from backend via order
+          key: environment.razorpayKeyId,
           amount: order.amount * 100,
           currency: 'INR',
           order_id: order.razorpayOrderId,

@@ -9,6 +9,7 @@ export const ROUTE_PATHS = {
     VENUE_DETAILS: 'venues/:id',
     CHECKOUT: 'checkout/:venueId',
     MY_BOOKINGS: 'my-bookings',
+    MY_BOOKING_DETAIL: 'my-bookings/:id',
     PROFILE: 'profile',
   },
   VENDOR: {

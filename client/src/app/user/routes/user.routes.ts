@@ -31,6 +31,12 @@ export const USER_ROUTES: Routes = [
           import('../features/my-bookings/my-bookings.component').then(m => m.MyBookingsComponent),
       },
       {
+        path: ROUTE_PATHS.USER.MY_BOOKING_DETAIL,
+        canActivate: [userAuthGuard],
+        loadComponent: () =>
+          import('../features/booking-detail/booking-detail.component').then(m => m.BookingDetailComponent),
+      },
+      {
         path: ROUTE_PATHS.USER.PROFILE,
         canActivate: [userAuthGuard],
         loadComponent: () =>

@@ -1,13 +1,10 @@
 export interface User {
   id: string;
+  name: string;
   email: string;
-  firstName: string;
-  lastName: string;
   phone: string;
-  avatar: string;
-  isActive: boolean;
+  role: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface CreateUserRequest {
@@ -19,8 +16,6 @@ export interface CreateUserRequest {
 }
 
 export interface UpdateUserRequest {
-  firstName?: string;
-  lastName?: string;
+  name?: string;
   phone?: string;
-  avatar?: string;
 }

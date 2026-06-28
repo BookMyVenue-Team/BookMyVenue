@@ -9,9 +9,9 @@ export const API_ENDPOINTS = {
     ADMIN_LOGIN: '/auth/login',
   },
   USERS: {
-    BASE: '/users',
-    PROFILE: '/users/profile',
-    BY_ID: (id: string) => `/users/${id}`,
+    BASE: '/v1/users',
+    PROFILE: '/v1/users/profile',
+    BY_ID: (id: string) => `/v1/users/${id}`,
   },
   VENDORS: {
     BASE: '/vendors',
