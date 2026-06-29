@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface VenueRepository extends JpaRepository<Venue,Long> {
     List<Venue> findByStatus(VenueStatus status);
@@ -34,6 +35,10 @@ public interface VenueRepository extends JpaRepository<Venue,Long> {
             VenueStatus status,
             String keyword
     );
+
+    List<Venue> findByOwnerId(UUID ownerId);
+
+    Optional<Venue> findByIdAndOwnerId(Long id, UUID ownerId);
 
 
     long countByStatus(VenueStatus status);

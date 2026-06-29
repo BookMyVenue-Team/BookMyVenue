@@ -26,6 +26,7 @@ public class VenueImage {
     @Column(name = "image_url", nullable = false, length = 1000)
     private String imageUrl;
 
+    @Builder.Default
     @Column(name = "is_primary", nullable = false)
     private Boolean isPrimary = false;
 

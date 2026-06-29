@@ -4,15 +4,16 @@ import com.bookmyvenue.server.auth.service.AuthenticatedUserService;
 import com.bookmyvenue.server.common.exception.BusinessException;
 import com.bookmyvenue.server.common.exception.ErrorCode;
 import com.bookmyvenue.server.user.entity.User;
-import com.bookmyvenue.server.user.repository.UserRepository;
 import com.bookmyvenue.server.venue.dto.request.CreateVenueRequest;
 import com.bookmyvenue.server.venue.dto.request.UpdateVenueRequest;
 import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 import com.bookmyvenue.server.venue.entity.Venue;
 import com.bookmyvenue.server.venue.entity.VenueCategory;
+import com.bookmyvenue.server.venue.entity.VenueImage;
 import com.bookmyvenue.server.venue.entity.VenueStatus;
 import com.bookmyvenue.server.venue.mapper.VenueMapper;
 import com.bookmyvenue.server.venue.repository.VenueCategoryRepository;
+import com.bookmyvenue.server.venue.repository.VenueImageRepository;
 import com.bookmyvenue.server.venue.repository.VenueRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 
 @Service
@@ -33,6 +33,7 @@ public class VenueServiceImpl implements VenueService {
     private final VenueCategoryRepository venueCategoryRepository;
     private final VenueMapper venueMapper;
     private final AuthenticatedUserService authenticatedUserService;
+    private final VenueImageRepository venueImageRepository;
 
     @Override
     public VenueResponse createVenue(CreateVenueRequest request) {
@@ -47,6 +48,7 @@ public class VenueServiceImpl implements VenueService {
         // Get currently authenticated venue owner
         User currentUser =
                 authenticatedUserService.getCurrentUser();
+        System.out.println("CURRENT USER = " + currentUser.getEmail());
 
 
         // New venues require admin approval before becoming visible
@@ -62,25 +64,37 @@ public class VenueServiceImpl implements VenueService {
                 .owner(currentUser)
                 .build();
 
+        if (request.getImageUrls() != null) {
+            request.getImageUrls().forEach(url -> {
+                VenueImage image = VenueImage.builder()
+                        .venue(venue)
+                        .imageUrl(url)
+                        .build();
+
+                venue.getImages().add(image);
+            });
+        }
+
         Venue savedVenue = venueRepository.save(venue);
-        log.info("Venue created successfully. venueId={}, ownerId={}",
-                savedVenue.getId(),
-                currentUser.getId());
 
         return venueMapper.toResponse(savedVenue);
     }
 
     @Override
     public List<VenueResponse> getAllVenues() {
-      List<Venue> venues = venueRepository.findAll()
-              .stream().toList();
+        User currentUser = authenticatedUserService.getCurrentUser();
+        List<Venue> venues = venueRepository.findByOwnerId(currentUser.getId());
+
       return venueMapper.toResponse(venues);
     }
 
     @Override
     public VenueResponse getVenue(Long venueId) {
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(()->
+        User currentUser = authenticatedUserService.getCurrentUser();
+
+        Venue venue = venueRepository
+                .findByIdAndOwnerId(venueId, currentUser.getId())
+                .orElseThrow(() ->
                         new BusinessException(ErrorCode.VENUE_NOT_FOUND));
         return venueMapper.toResponse(venue);
     }
@@ -155,21 +169,13 @@ public class VenueServiceImpl implements VenueService {
             UpdateVenueRequest request
     ) {
 
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(()->
-                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
-
         // Ensure only the venue owner can modify venue details
         User currentUser = authenticatedUserService.getCurrentUser();
-        if (!venue.getOwner().getId().equals(currentUser.getId())) {
-            throw new BusinessException(ErrorCode.ACCESS_DENIED);
-        }
-        log.warn(
-                "Unauthorized venue update attempt. venueId={}, ownerId={}, requesterId={}",
-                venueId,
-                venue.getOwner().getId(),
-                currentUser.getId()
-        );
+        Venue venue = venueRepository
+                .findByIdAndOwnerId(venueId, currentUser.getId())
+                .orElseThrow(() ->
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
+
         if (request.getName() != null) {
             venue.setName(request.getName());
         }
@@ -217,22 +223,12 @@ public class VenueServiceImpl implements VenueService {
 
     @Override
     public void deleteVenue(Long venueId){
-        Venue venue = venueRepository.findById(venueId)
-                .orElseThrow(() ->
-                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
 
             User currentUser = authenticatedUserService.getCurrentUser();
-
-          // Ensure only the venue owner can delete the venue
-            if (!venue.getOwner().getId().equals(currentUser.getId())) {
-                log.warn(
-                        "Unauthorized venue delete attempt. venueId={}, ownerId={}, requesterId={}",
-                        venueId,
-                        venue.getOwner().getId(),
-                        currentUser.getId()
-                );
-                throw new BusinessException(ErrorCode.ACCESS_DENIED);
-            }
+            Venue venue = venueRepository
+                .findByIdAndOwnerId(venueId, currentUser.getId())
+                .orElseThrow(() ->
+                        new BusinessException(ErrorCode.VENUE_NOT_FOUND));
         venueRepository.delete(venue);
 
         log.info(

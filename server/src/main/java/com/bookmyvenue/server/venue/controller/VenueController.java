@@ -28,6 +28,7 @@ public class VenueController {
     public VenueResponse createVenue(
             @RequestBody CreateVenueRequest request
     ) {
+        System.out.println("CREATE VENUE CONTROLLER HIT");
         return venueService.createVenue(request);
     }
 
