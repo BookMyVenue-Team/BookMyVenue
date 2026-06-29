@@ -19,6 +19,9 @@ public class VenueMapper {
                 .district(venue.getDistrict())
                 .capacity(venue.getCapacity())
                 .pricePerSlot(venue.getPricePerSlot())
+                .advancePercentage(
+                        venue.getAdvancePercentage()
+                )
                 .category(venue.getCategory().getName())
                 .status(venue.getStatus())
                 .imageUrls(

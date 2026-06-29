@@ -62,6 +62,14 @@ public class Venue {
     @Builder.Default
     private List<VenueImage> images = new ArrayList<>();
 
+    @Column(
+            name = "advance_percentage",
+            nullable = false,
+            precision = 5,
+            scale = 2
+    )
+    private BigDecimal advancePercentage;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

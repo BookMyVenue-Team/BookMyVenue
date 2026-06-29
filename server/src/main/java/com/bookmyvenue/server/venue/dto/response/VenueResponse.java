@@ -27,6 +27,8 @@ public class VenueResponse {
 
     private BigDecimal pricePerSlot;
 
+    private BigDecimal advancePercentage;
+
     private String category;
 
     private VenueStatus status;

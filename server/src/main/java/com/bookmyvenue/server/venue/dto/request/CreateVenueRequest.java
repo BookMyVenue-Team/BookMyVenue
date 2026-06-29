@@ -1,5 +1,7 @@
 package com.bookmyvenue.server.venue.dto.request;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -21,7 +23,9 @@ public class CreateVenueRequest {
     private Integer capacity;
 
     private BigDecimal pricePerSlot;
-
+    @DecimalMin("0.00")
+    @DecimalMax("100.00")
+    private BigDecimal advancePercentage;
     private Long categoryId;
 
     private List<String> imageUrls;
