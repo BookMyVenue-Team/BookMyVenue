@@ -35,13 +35,11 @@ public class AvailabilityServiceImpl
             Long venueId,
             LocalDate date
     ) {
-
         log.info(
                 "Fetching availability for venueId={} date={}",
                 venueId,
                 date
         );
-
         Venue venue = venueRepository.findById(venueId)
                 .orElseThrow(() ->
                         new BusinessException(

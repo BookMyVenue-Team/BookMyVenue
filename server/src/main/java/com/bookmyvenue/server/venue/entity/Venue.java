@@ -59,6 +59,7 @@ public class Venue {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @Builder.Default
     private List<VenueImage> images = new ArrayList<>();
 
     @CreationTimestamp
