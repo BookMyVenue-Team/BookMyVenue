@@ -42,6 +42,12 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt; // Last update timestamp
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+    @Column(nullable = false)
+    private boolean phoneVerified = false;
+
     /**
      * Automatically sets creation and update timestamps
      * before the entity is inserted into the database.
