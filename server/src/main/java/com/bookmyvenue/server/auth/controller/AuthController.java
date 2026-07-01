@@ -9,6 +9,7 @@ import com.bookmyvenue.server.auth.service.AuthService;
 import com.bookmyvenue.server.common.exception.BusinessException;
 import com.bookmyvenue.server.common.exception.ErrorCode;
 import com.bookmyvenue.server.common.response.ApiErrorResponse;
+import com.bookmyvenue.server.common.response.MessageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Authentication and account management APIs")
 public class AuthController {
@@ -32,7 +33,7 @@ public class AuthController {
     private final AuthService authService;
     private final CookieUtils cookieUtils;
 
-    @Operation(summary = "Register a new account", description = "Creates a new USER or VENDOR account and sets authentication cookies.")
+    @Operation(summary = "Register a new account", description = "Creates a new USER or VENDOR account and sends a verification email.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Registration successful"),
             @ApiResponse(responseCode = "400", description = "Invalid request or ADMIN registration attempted",
@@ -41,26 +42,20 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<MessageResponse> register(@Valid @RequestBody RegisterRequest request) {
 
-        AuthResult result = authService.register(request);
-        ResponseCookie accessCookie = cookieUtils.accessTokenCookie(result.accessToken());
-        ResponseCookie refreshCookie = cookieUtils.refreshTokenCookie(result.refreshToken());
+        MessageResponse response = authService.register(request);
 
-        System.out.println(accessCookie);
-        System.out.println(refreshCookie);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(result.response());
+                .body(response);
     }
 
 
 
     @Operation(summary = "Authenticate user", description = "Authenticates a user and sets authentication cookies.")
     @ApiResponses({@ApiResponse(responseCode = "200", description = "Login successful"),
-            @ApiResponse(responseCode = "401", description = "Invalid credentials",
+            @ApiResponse(responseCode = "401", description = "Invalid credentials or email not verified",
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/login")

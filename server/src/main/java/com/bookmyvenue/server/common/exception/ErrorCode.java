@@ -117,6 +117,28 @@ public enum ErrorCode {
             "INVALID_PAYMENT_SIGNATURE",
             "Invalid payment signature"
     ),
+    INVALID_OTP(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_OTP",
+            "Invalid OTP."
+    ),
+
+    OTP_EXPIRED(
+            HttpStatus.BAD_REQUEST,
+            "OTP_EXPIRED",
+            "OTP has expired. Please request a new one."
+    ),
+
+    EMAIL_ALREADY_VERIFIED(
+            HttpStatus.BAD_REQUEST,
+            "EMAIL_ALREADY_VERIFIED",
+            "Email is already verified."
+    ),
+    EMAIL_NOT_VERIFIED(
+            HttpStatus.FORBIDDEN,
+            "EMAIL_NOT_VERIFIED",
+            "Email is not verified."
+    ),
     INVALID_VENUE_STATUS(
             HttpStatus.BAD_REQUEST,
             "INVALID_VENUE_STATUS",

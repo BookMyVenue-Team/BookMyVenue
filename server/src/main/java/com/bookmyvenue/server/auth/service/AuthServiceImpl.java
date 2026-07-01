@@ -6,9 +6,11 @@ import com.bookmyvenue.server.auth.dto.response.AuthResponse;
 import com.bookmyvenue.server.auth.dto.response.AuthResult;
 import com.bookmyvenue.server.auth.security.JwtService;
 import com.bookmyvenue.server.common.exception.*;
+import com.bookmyvenue.server.common.response.MessageResponse;
 import com.bookmyvenue.server.user.entity.User;
 import com.bookmyvenue.server.user.enums.Role;
 import com.bookmyvenue.server.user.repository.UserRepository;
+import com.bookmyvenue.server.verification.service.VerificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,10 +25,10 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-
+    private final VerificationService verificationService;
 
     @Override
-    public AuthResult register(RegisterRequest request) {
+    public MessageResponse register(RegisterRequest request) {
 
         log.info("Attempting registration for email: {}", request.getEmail());
 
@@ -52,27 +54,18 @@ public class AuthServiceImpl implements AuthService {
                 .phone(request.getPhone())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
+                .emailVerified(false)
+                .phoneVerified(false)
                 .build();
 
         User savedUser = userRepository.save(user);
 
-        String accessToken = jwtService.generateAccessToken(savedUser.getEmail(), savedUser.getRole());
-        String refreshToken = jwtService.generateRefreshToken(savedUser.getEmail(), savedUser.getRole());
+        verificationService.sendEmailVerificationOtp(savedUser.getEmail());
 
-        log.info("User registered successfully: {}", savedUser.getEmail());
-
-        AuthResponse response = AuthResponse.builder()
-                .userId(savedUser.getId())
-                .name(savedUser.getName())
-                .email(savedUser.getEmail())
-                .role(savedUser.getRole())
+        log.info("Verification email sent to {}", savedUser.getEmail());
+        return MessageResponse.builder()
+                .message("Registration successful. Please verify your email.")
                 .build();
-
-        return new AuthResult(
-                response,
-                accessToken,
-                refreshToken
-        );
     }
 
 
@@ -85,6 +78,11 @@ public class AuthServiceImpl implements AuthService {
                     log.warn("Login failed. User not found: {}", request.getEmail());
                     return new BusinessException(ErrorCode.INVALID_CREDENTIALS);
                 });
+
+        if (!user.isEmailVerified()) {
+            log.warn("Login failed. Email not verified: {}", request.getEmail());
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
+        }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             log.warn("Login failed. Invalid password for email: {}", request.getEmail());
