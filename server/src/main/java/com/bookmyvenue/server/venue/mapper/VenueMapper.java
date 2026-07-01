@@ -2,6 +2,7 @@ package com.bookmyvenue.server.venue.mapper;
 
 import com.bookmyvenue.server.venue.dto.response.VenueResponse;
 import com.bookmyvenue.server.venue.entity.Venue;
+import com.bookmyvenue.server.venue.entity.VenueImage;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,6 +21,12 @@ public class VenueMapper {
                 .pricePerSlot(venue.getPricePerSlot())
                 .category(venue.getCategory().getName())
                 .status(venue.getStatus())
+                .imageUrls(
+                        venue.getImages()
+                                .stream()
+                                .map(VenueImage::getImageUrl)
+                                .toList()
+                )
                 .build();
     }
 

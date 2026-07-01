@@ -23,8 +23,7 @@ export class ProfileComponent implements OnInit {
   readonly saving = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    firstName: ['', [Validators.required]],
-    lastName: ['', [Validators.required]],
+    name: ['', [Validators.required]],
     phone: ['', [Validators.required, AppValidators.phone]],
   });
 
@@ -33,8 +32,7 @@ export class ProfileComponent implements OnInit {
     this.userService.loadProfile().subscribe({
       next: (user) => {
         this.form.patchValue({
-          firstName: user.firstName,
-          lastName: user.lastName,
+          name: user.name,
           phone: user.phone,
         });
         this.loading.set(false);
