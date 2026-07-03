@@ -10,6 +10,9 @@ import {
   ForgotPasswordRequest,
   ResetPasswordRequest,
   RefreshTokenApiResponse,
+  VerifyEmailRequest,
+  ResendOtpRequest,
+  OtpResponse,
 } from '../models/auth-response.model';
 import { ApiResponse } from '../models/api-response.model';
 
@@ -71,6 +74,20 @@ signup(payload: SignupRequest): Observable<AuthResponse> {
   resetPassword(payload: ResetPasswordRequest): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
+      payload
+    );
+  }
+
+  verifyEmail(payload: VerifyEmailRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`,
+      payload
+    );
+  }
+
+  resendOtp(payload: ResendOtpRequest): Observable<OtpResponse> {
+    return this.http.post<OtpResponse>(
+      `${this.apiUrl}${API_ENDPOINTS.AUTH.RESEND_VERIFICATION}`,
       payload
     );
   }

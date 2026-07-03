@@ -1,6 +1,6 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
@@ -16,6 +16,7 @@ import { AppValidators } from '../../../shared/utils/validators';
 })
 export class SignupComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
   readonly loading = this.authService.loading;
@@ -35,7 +36,14 @@ export class SignupComponent {
   onSubmit(): void {
     if (this.form.valid) {
       const { confirmPassword, ...payload } = this.form.getRawValue();
-      this.authService.signup(payload);
+      this.authService.signup(payload).subscribe({
+        next: () => {
+          const portal = payload.isVendor ? 'vendor' : 'user';
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: payload.email, portal },
+          });
+        },
+      });
     } else {
       this.form.markAllAsTouched();
     }
