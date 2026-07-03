@@ -1,7 +1,9 @@
 package com.bookmyvenue.server.auth.controller;
 
+import com.bookmyvenue.server.auth.dto.request.ForgotPasswordRequest;
 import com.bookmyvenue.server.auth.dto.request.LoginRequest;
 import com.bookmyvenue.server.auth.dto.request.RegisterRequest;
+import com.bookmyvenue.server.auth.dto.request.ResetPasswordRequest;
 import com.bookmyvenue.server.auth.dto.response.AuthResponse;
 import com.bookmyvenue.server.auth.dto.response.AuthResult;
 import com.bookmyvenue.server.auth.security.CookieUtils;
@@ -105,5 +107,38 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookieUtils.clearRefreshTokenCookie().toString())
                 .build();
     }
+
+    @Operation(summary = "Forgot password", description = "Sends a password reset OTP to the registered email address.")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "Password reset OTP sent successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))})
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+
+        MessageResponse response = authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Reset password", description = "Resets the user's password using a valid OTP.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Password reset successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired OTP",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+
+        MessageResponse response = authService.resetPassword(
+                request.getEmail(),
+                request.getOtp(),
+                request.getNewPassword()
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }

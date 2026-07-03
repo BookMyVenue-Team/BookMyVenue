@@ -11,4 +11,5 @@ VALUES
     ('Farm House', 'Farm houses for private events'),
     ('Beach Venue', 'Beachside venues for weddings and parties'),
     ('Rooftop Venue', 'Open rooftop event spaces'),
-    ('Community Hall', 'Community-owned multipurpose halls');
+    ('Community Hall', 'Community-owned multipurpose halls')
+    ON CONFLICT (name) DO NOTHING;

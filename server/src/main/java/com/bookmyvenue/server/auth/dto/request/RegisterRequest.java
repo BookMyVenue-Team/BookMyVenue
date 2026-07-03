@@ -30,8 +30,10 @@ public class RegisterRequest {
     @NotBlank(message = "Phone number is required")
     private String phone;
 
-    @Schema(description = "Account password", example = "password123")
+    @Schema(description = "Account password", example = "Password@123")
     @NotBlank(message = "Password is required")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,100}$",
+            message = "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character")
     private String password;
 
     @Schema(description = "Account role", example = "USER", allowableValues = {"USER", "VENDOR"})
