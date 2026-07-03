@@ -8,6 +8,8 @@ import com.bookmyvenue.server.booking.enums.BookingStatus;
 import com.bookmyvenue.server.booking.repository.BookingRepository;
 import com.bookmyvenue.server.common.exception.BusinessException;
 import com.bookmyvenue.server.common.exception.ErrorCode;
+import com.bookmyvenue.server.payment.enums.PaymentType;
+import com.bookmyvenue.server.payment.service.PaymentService;
 import com.bookmyvenue.server.slot.entity.SlotTemplate;
 import com.bookmyvenue.server.slot.repository.SlotTemplateRepository;
 import com.bookmyvenue.server.user.entity.User;
@@ -56,6 +58,15 @@ public class BookingServiceImpl implements BookingService {
                         new BusinessException(
                                 ErrorCode.VENUE_NOT_FOUND
                         ));
+
+        BigDecimal totalAmount = venue.getPricePerSlot();
+
+        BigDecimal advanceAmount =
+                totalAmount
+                        .multiply(
+                                venue.getAdvancePercentage()
+                        )
+                        .divide(BigDecimal.valueOf(100));
 
         SlotTemplate slotTemplate =
                 slotTemplateRepository.findById(slotTemplateId)
@@ -115,7 +126,7 @@ public class BookingServiceImpl implements BookingService {
                 .slotTemplate(slotTemplate)
                 .bookingDate(request.bookingDate())
                 .status(BookingStatus.PENDING)
-                .totalAmount(venue.getPricePerSlot())
+                .totalAmount(totalAmount)
                 .expiresAt(
                         LocalDateTime.now().plusMinutes(10)
                 )
@@ -127,6 +138,7 @@ public class BookingServiceImpl implements BookingService {
                 "Booking created successfully. bookingId={}",
                 booking.getId()
         );
+
 
         return mapToResponse(booking);
     }

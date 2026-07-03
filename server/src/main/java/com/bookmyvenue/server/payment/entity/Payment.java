@@ -2,6 +2,7 @@ package com.bookmyvenue.server.payment.entity;
 
 import com.bookmyvenue.server.booking.entity.Booking;
 import com.bookmyvenue.server.payment.enums.PaymentStatus;
+import com.bookmyvenue.server.payment.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +36,10 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentType paymentType;
 
     private String razorpayOrderId;
 

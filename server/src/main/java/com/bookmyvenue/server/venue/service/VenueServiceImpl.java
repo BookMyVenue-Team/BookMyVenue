@@ -59,6 +59,7 @@ public class VenueServiceImpl implements VenueService {
                 .district(request.getDistrict())
                 .capacity(request.getCapacity())
                 .pricePerSlot(request.getPricePerSlot())
+                .advancePercentage(request.getAdvancePercentage())
                 .category(category)
                 .status(VenueStatus.PENDING_APPROVAL)
                 .owner(currentUser)
@@ -140,7 +141,10 @@ public class VenueServiceImpl implements VenueService {
                             categoryId
                     );
 
-        } else {
+        }
+
+
+        else {
 
             venues = venueRepository.findByStatus(
                     VenueStatus.APPROVED
@@ -198,6 +202,12 @@ public class VenueServiceImpl implements VenueService {
 
         if (request.getPricePerSlot() != null) {
             venue.setPricePerSlot(request.getPricePerSlot());
+        }
+
+        if (request.getAdvancePercentage() != null) {
+            venue.setAdvancePercentage(
+                    request.getAdvancePercentage()
+            );
         }
 
         if (request.getCategoryId() != null) {
