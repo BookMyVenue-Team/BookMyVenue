@@ -13,4 +13,7 @@ public final class RedisKeys {
         return "verified:email:" + email;
     }
 
+    public static String passwordReset(String email) {
+        return "reset:password:" + email;
+    }
 }

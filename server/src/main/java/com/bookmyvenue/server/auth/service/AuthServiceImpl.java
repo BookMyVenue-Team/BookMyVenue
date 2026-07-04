@@ -10,7 +10,11 @@ import com.bookmyvenue.server.common.response.MessageResponse;
 import com.bookmyvenue.server.user.entity.User;
 import com.bookmyvenue.server.user.enums.Role;
 import com.bookmyvenue.server.user.repository.UserRepository;
+import com.bookmyvenue.server.verification.mail.service.MailService;
+import com.bookmyvenue.server.verification.service.OtpRedisService;
 import com.bookmyvenue.server.verification.service.VerificationService;
+import com.bookmyvenue.server.verification.util.OtpGenerator;
+import com.bookmyvenue.server.verification.util.RedisKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +30,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final VerificationService verificationService;
+    private final OtpGenerator otpGenerator;
+    private final OtpRedisService otpRedisService;
+    private final MailService mailService;
 
     @Override
     public MessageResponse register(RegisterRequest request) {
@@ -137,4 +144,58 @@ public class AuthServiceImpl implements AuthService {
                 newRefreshToken
         );
     }
+
+    @Override
+    public MessageResponse forgotPassword(String email) {
+
+        log.info("Forgot password requested for {}", email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        String otp = otpGenerator.generateOtp();
+        String key = RedisKeys.passwordReset(email);
+        otpRedisService.saveOtp(key, otp);
+        mailService.sendPasswordResetOtp(email, otp);
+
+        log.info("Password reset OTP sent to {}", email);
+        return MessageResponse.builder()
+                .message("Password reset OTP sent successfully.")
+                .build();
+    }
+
+    @Override
+    public MessageResponse resetPassword(String email, String otp, String newPassword)
+    {
+
+        log.info("Password reset requested for {}", email);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+
+        String key = RedisKeys.passwordReset(email);
+        String savedOtp = otpRedisService.getOtp(key);
+
+        if (savedOtp == null) {
+            throw new BusinessException(ErrorCode.OTP_EXPIRED);
+        }
+
+        if (!savedOtp.equals(otp)) {
+            throw new BusinessException(ErrorCode.INVALID_OTP);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        otpRedisService.deleteOtp(key);
+        log.info("Password reset successfully for {}", email);
+        return MessageResponse.builder()
+                .message("Password reset successful.")
+                .build();
+    }
+
+
+
+
 }

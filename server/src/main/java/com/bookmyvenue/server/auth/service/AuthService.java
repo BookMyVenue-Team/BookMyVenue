@@ -23,4 +23,9 @@ public interface AuthService {
      * Generates a new access token using a valid refresh token.
      */
     AuthResult refreshToken(String refreshToken);
+
+
+    MessageResponse forgotPassword(String email);
+
+    MessageResponse resetPassword(String email,String otp, String newPassword);
 }
