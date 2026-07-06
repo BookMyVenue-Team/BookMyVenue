@@ -4,6 +4,7 @@ export const ROUTE_PATHS = {
     LOGIN: 'login',
     SIGNUP: 'register',
     FORGOT_PASSWORD: 'forgot-password',
+    RESET_PASSWORD: 'reset-password',
     DASHBOARD: 'dashboard',
     VENUES: 'venues',
     VENUE_DETAILS: 'venues/:id',

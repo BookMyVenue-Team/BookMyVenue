@@ -61,9 +61,10 @@ export class AuthService {
   }
 
   private detectPortal(): string {
-    const url = this.router.url || window.location.pathname;
-    if (url.startsWith('/admin')) return 'admin';
-    if (url.startsWith('/vendor')) return 'vendor';
+    const url = window.location.pathname || '';
+    const routerUrl = this.router.url || '';
+    if (url.startsWith('/admin') || routerUrl.startsWith('/admin')) return 'admin';
+    if (url.startsWith('/vendor') || routerUrl.startsWith('/vendor')) return 'vendor';
     return 'user';
   }
 
@@ -103,6 +104,7 @@ export class AuthService {
     this.storage.remove(keys.token);
     this.storage.remove(keys.refresh);
     this.storage.remove(keys.user);
+    this.storage.remove('accessToken');
 
     if (portal === 'admin') this.adminSession.set(null);
     else if (portal === 'vendor') this.vendorSession.set(null);
@@ -161,7 +163,10 @@ export class AuthService {
         }
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
+        // Tokens are in cookies - read from storage (cookies are set by browser via Set-Cookie header)
+        const token = this.storage.get('accessToken') || '';
+        const refreshToken = this.storage.get('refreshToken') || '';
+        this.savePortalSession(portal, token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
@@ -190,7 +195,10 @@ export class AuthService {
           return;
         }
         const user = this.toAuthUser(response);
-        this.savePortalSession('admin', response.accessToken || '', response.refreshToken || '', user);
+        // Tokens are in cookies - read from storage (cookies are set by browser via Set-Cookie header)
+        const token = this.storage.get('accessToken') || '';
+        const refreshToken = this.storage.get('refreshToken') || '';
+        this.savePortalSession('admin', token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
         this.loading.set(false);
@@ -218,15 +226,35 @@ export class AuthService {
     );
   }
 
-  forgotPassword(payload: ForgotPasswordRequest): void {
+  forgotPassword(payload: ForgotPasswordRequest, onSuccess?: () => void): void {
     this.loading.set(true);
     this.authRepository.forgotPassword(payload).subscribe({
       next: () => {
-        this.notification.success('Password reset email sent');
+        this.notification.success('OTP sent to your email');
         this.loading.set(false);
+        if (onSuccess) {
+          onSuccess();
+        }
       },
       error: () => {
-        this.notification.error('Failed to send reset email');
+        this.notification.error('Failed to send OTP');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  resetPassword(payload: { email: string; otp: string; newPassword: string }, onSuccess?: () => void): void {
+    this.loading.set(true);
+    this.authRepository.resetPassword(payload).subscribe({
+      next: () => {
+        this.notification.success('Password reset successful');
+        this.loading.set(false);
+        if (onSuccess) {
+          onSuccess();
+        }
+      },
+      error: () => {
+        this.notification.error('Failed to reset password');
         this.loading.set(false);
       },
     });

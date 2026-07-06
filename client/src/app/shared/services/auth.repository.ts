@@ -24,14 +24,16 @@ export class AuthRepository {
   login(payload: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.LOGIN}`,
-      payload
+      payload,
+      { withCredentials: true }
     );
   }
 
   adminLogin(payload: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.ADMIN_LOGIN}`,
-      payload
+      payload,
+      { withCredentials: true }
     );
   }
 
@@ -53,42 +55,48 @@ signup(payload: SignupRequest): Observable<AuthResponse> {
   logout(): Observable<void> {
     return this.http.post<void>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.LOGOUT}`,
-      {}
+      {},
+      { withCredentials: true }
     );
   }
 
   refreshToken(): Observable<RefreshTokenApiResponse> {
     return this.http.post<RefreshTokenApiResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
-      {}
+      {},
+      { withCredentials: true }
     );
   }
 
   forgotPassword(payload: ForgotPasswordRequest): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
-      payload
+      payload,
+      { withCredentials: true }
     );
   }
 
   resetPassword(payload: ResetPasswordRequest): Observable<ApiResponse<null>> {
     return this.http.post<ApiResponse<null>>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
-      payload
+      payload,
+      { withCredentials: true }
     );
   }
 
   verifyEmail(payload: VerifyEmailRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`,
-      payload
+      payload,
+      { withCredentials: true }
     );
   }
 
   resendOtp(payload: ResendOtpRequest): Observable<OtpResponse> {
     return this.http.post<OtpResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.RESEND_VERIFICATION}`,
-      payload
+      payload,
+      { withCredentials: true }
     );
   }
 }
