@@ -6,14 +6,14 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { InputComponent } from '../../../shared/components/input/input.component';
 
 @Component({
-  selector: 'app-user-forgot-password',
+  selector: 'app-user-reset-password',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, ButtonComponent, InputComponent],
-  templateUrl: './forgot-password.component.html',
-  styleUrl: './forgot-password.component.css',
+  templateUrl: './reset-password.component.html',
+  styleUrl: './reset-password.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ForgotPasswordComponent {
+export class ResetPasswordComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -22,12 +22,20 @@ export class ForgotPasswordComponent {
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
+    otp: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
+    newPassword: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: ['', [Validators.required]],
   });
 
   onSubmit(): void {
     if (this.form.valid) {
-      this.authService.forgotPassword(this.form.getRawValue(), () => {
-        this.router.navigate(['/reset-password']);
+      const { email, otp, newPassword, confirmPassword } = this.form.getRawValue();
+      if (newPassword !== confirmPassword) {
+        this.form.controls.confirmPassword.setErrors({ mismatch: true });
+        return;
+      }
+      this.authService.resetPassword({ email, otp, newPassword }, () => {
+        this.router.navigate(['/login']);
       });
     } else {
       this.form.markAllAsTouched();

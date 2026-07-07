@@ -8,6 +8,7 @@ export interface Venue {
   district: string;
   capacity: number;
   pricePerSlot: number;
+  advancePercentage: number;
   category: string;
   status: VenueStatus;
   imageUrls?: string[];
@@ -20,6 +21,7 @@ export interface CreateVenueRequest {
   district: string;
   capacity: number;
   pricePerSlot: number;
+  advancePercentage: number;
   categoryId: number;
   imageUrls?: string[];
 }
@@ -31,6 +33,7 @@ export interface UpdateVenueRequest {
   district?: string;
   capacity?: number;
   pricePerSlot?: number;
+  advancePercentage?: number;
   categoryId?: number;
   imageUrls?: string[];
 }

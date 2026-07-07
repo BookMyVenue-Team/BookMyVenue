@@ -12,7 +12,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       // 401 = access token expired — try refresh then retry
       // 403 is NOT a token error; it means the user lacks permission — do not refresh
+      // Exclude auth endpoints from auto-refresh
       if (error.status === 401 &&
+          !req.url.includes('/auth/login') &&
+          !req.url.includes('/auth/register') &&
           !req.url.includes('/auth/refresh-token') &&
           !req.url.includes('/auth/logout')) {
 
@@ -27,16 +30,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         );
       }
 
-      let message = 'An unexpected error occurred';
+      let message = error.error?.message || 'An unexpected error occurred';
       switch (error.status) {
         case 0:   message = 'Unable to connect to server'; break;
-        case 403: message = 'You do not have permission to perform this action'; break;
-        case 404: message = 'Resource not found'; break;
-        case 422: message = error.error?.message || 'Validation error'; break;
+        case 403: message = error.error?.message; break;
+        case 404: message = error.error?.message || 'Resource not found'; break;
         case 500: message = 'Server error. Please try again later.'; break;
       }
 
-      notification.error(message);
+      // Do not display global notifications for auth endpoints - they handle their own errors
+      const isAuthEndpoint = req.url.includes('/auth/login') ||
+                           req.url.includes('/auth/register') ||
+                           req.url.includes('/auth/forgot-password') ||
+                           req.url.includes('/auth/reset-password');
+      if (!isAuthEndpoint && message) {
+        notification.error(message);
+      }
       return throwError(() => error);
     })
   );

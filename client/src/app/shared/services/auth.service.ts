@@ -9,9 +9,22 @@ import {
   LoginRequest,
   SignupRequest,
   ForgotPasswordRequest,
+  VerifyEmailRequest,
+  ResendOtpRequest,
+  OtpResponse,
 } from '../models/auth-response.model';
 import { UserRole } from '../enums/user-role.enum';
+import { AUTH_ERRORS } from '../constants/auth-errors.constant';
 import { map, Observable } from 'rxjs';
+
+export class EmailNotVerifiedError extends Error {
+  readonly email: string;
+  constructor(email: string) {
+    super('Email not verified');
+    this.name = 'EmailNotVerifiedError';
+    this.email = email;
+  }
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -23,6 +36,7 @@ export class AuthService {
   readonly userSession = signal<AuthUser | null>(null);
   readonly vendorSession = signal<AuthUser | null>(null);
   readonly adminSession = signal<AuthUser | null>(null);
+  readonly pendingVerificationEmail = signal<string | null>(null);
 
   readonly currentUser = computed(() => {
     const portal = this.detectPortal();
@@ -47,9 +61,10 @@ export class AuthService {
   }
 
   private detectPortal(): string {
-    const url = this.router.url || window.location.pathname;
-    if (url.startsWith('/admin')) return 'admin';
-    if (url.startsWith('/vendor')) return 'vendor';
+    const url = window.location.pathname || '';
+    const routerUrl = this.router.url || '';
+    if (url.startsWith('/admin') || routerUrl.startsWith('/admin')) return 'admin';
+    if (url.startsWith('/vendor') || routerUrl.startsWith('/vendor')) return 'vendor';
     return 'user';
   }
 
@@ -89,6 +104,7 @@ export class AuthService {
     this.storage.remove(keys.token);
     this.storage.remove(keys.refresh);
     this.storage.remove(keys.user);
+    this.storage.remove('accessToken');
 
     if (portal === 'admin') this.adminSession.set(null);
     else if (portal === 'vendor') this.vendorSession.set(null);
@@ -139,14 +155,29 @@ export class AuthService {
     this.loading.set(true);
     this.authRepository.login(payload).subscribe({
       next: (response) => {
+        if (response.requiresVerification && !response.emailVerified) {
+          this.loading.set(false);
+          this.pendingVerificationEmail.set(payload.email);
+          this.notification.error('Please verify your email first');
+          return;
+        }
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
+        // Tokens are in cookies - read from storage (cookies are set by browser via Set-Cookie header)
+        const token = this.storage.get('accessToken') || '';
+        const refreshToken = this.storage.get('refreshToken') || '';
+        this.savePortalSession(portal, token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        if (err.status === 403 && err.error?.code === AUTH_ERRORS.EMAIL_NOT_VERIFIED) {
+          this.loading.set(false);
+          this.pendingVerificationEmail.set(payload.email);
+          this.notification.error('Please verify your email first');
+          return;
+        }
         this.notification.error('Invalid credentials');
         this.loading.set(false);
       },
@@ -157,46 +188,73 @@ export class AuthService {
     this.loading.set(true);
     this.authRepository.adminLogin(payload).subscribe({
       next: (response) => {
+        if (response.requiresVerification && !response.emailVerified) {
+          this.loading.set(false);
+          this.pendingVerificationEmail.set(payload.email);
+          this.notification.error('Please verify your email first');
+          return;
+        }
         const user = this.toAuthUser(response);
-        this.savePortalSession('admin', response.accessToken || '', response.refreshToken || '', user);
+        // Tokens are in cookies - read from storage (cookies are set by browser via Set-Cookie header)
+        const token = this.storage.get('accessToken') || '';
+        const refreshToken = this.storage.get('refreshToken') || '';
+        this.savePortalSession('admin', token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
         this.loading.set(false);
       },
-      error: () => {
+      error: (err) => {
+        if (err.status === 403 && err.error?.code === AUTH_ERRORS.EMAIL_NOT_VERIFIED) {
+          this.loading.set(false);
+          this.pendingVerificationEmail.set(payload.email);
+          this.notification.error('Please verify your email first');
+          return;
+        }
         this.notification.error('Invalid credentials');
         this.loading.set(false);
       },
     });
   }
 
-  signup(payload: SignupRequest): void {
+  signup(payload: SignupRequest): Observable<AuthResponse> {
     this.loading.set(true);
-    this.authRepository.signup(payload).subscribe({
-      next: (response) => {
-        const user = this.toAuthUser(response);
-        const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
-        this.notification.success(portal === 'vendor' ? 'Vendor account created successfully' : 'Account created successfully');
-        this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
+    return this.authRepository.signup(payload).pipe(
+      map((response) => {
         this.loading.set(false);
+        return response;
+      })
+    );
+  }
+
+  forgotPassword(payload: ForgotPasswordRequest, onSuccess?: () => void): void {
+    this.loading.set(true);
+    this.authRepository.forgotPassword(payload).subscribe({
+      next: () => {
+        this.notification.success('OTP sent to your email');
+        this.loading.set(false);
+        if (onSuccess) {
+          onSuccess();
+        }
       },
       error: () => {
-        this.notification.error('Signup failed. Please try again.');
+        this.notification.error('Failed to send OTP');
         this.loading.set(false);
       },
     });
   }
 
-  forgotPassword(payload: ForgotPasswordRequest): void {
+  resetPassword(payload: { email: string; otp: string; newPassword: string }, onSuccess?: () => void): void {
     this.loading.set(true);
-    this.authRepository.forgotPassword(payload).subscribe({
+    this.authRepository.resetPassword(payload).subscribe({
       next: () => {
-        this.notification.success('Password reset email sent');
+        this.notification.success('Password reset successful');
         this.loading.set(false);
+        if (onSuccess) {
+          onSuccess();
+        }
       },
       error: () => {
-        this.notification.error('Failed to send reset email');
+        this.notification.error('Failed to reset password');
         this.loading.set(false);
       },
     });
@@ -227,6 +285,18 @@ handleLogout(): void {
   const portal = this.detectPortal();
   this.clearPortalSession(portal);
   this.router.navigate(['/login']);
+}
+
+verifyEmail(payload: VerifyEmailRequest): Observable<AuthResponse> {
+  return this.authRepository.verifyEmail(payload);
+}
+
+resendOtp(payload: ResendOtpRequest): Observable<OtpResponse> {
+  return this.authRepository.resendOtp(payload);
+}
+
+clearPendingVerification(): void {
+  this.pendingVerificationEmail.set(null);
 }
 
 }
