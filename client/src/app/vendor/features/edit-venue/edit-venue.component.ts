@@ -6,8 +6,10 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { CloudinaryService } from '../../../shared/services/cloudinary.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { CategoryService } from '../../../shared/services/category.service';
+import { VenueCategory } from '../../../shared/models/venue.model';
 import { forkJoin } from 'rxjs';
-import { VenueCategory, VenueAmenity } from '../create-venue/create-venue.component';
+import { VenueAmenity } from '../create-venue/create-venue.component';
 
 @Component({
   selector: 'app-edit-venue',
@@ -17,12 +19,13 @@ import { VenueCategory, VenueAmenity } from '../create-venue/create-venue.compon
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditVenueComponent implements OnInit {
-  private readonly route        = inject(ActivatedRoute);
-  readonly router               = inject(Router);
-  private readonly fb           = inject(FormBuilder);
-  private readonly venueService = inject(VenueService);
-  private readonly cloudinary   = inject(CloudinaryService);
-  private readonly notification = inject(NotificationService);
+  private readonly route            = inject(ActivatedRoute);
+  readonly router                   = inject(Router);
+  private readonly fb               = inject(FormBuilder);
+  private readonly venueService     = inject(VenueService);
+  private readonly cloudinary       = inject(CloudinaryService);
+  private readonly notification     = inject(NotificationService);
+  private readonly categoryService  = inject(CategoryService);
 
   readonly loading   = signal(true);
   readonly saving    = signal(false);
@@ -33,16 +36,7 @@ export class EditVenueComponent implements OnInit {
 
   private venueId = '';
 
-  readonly categories: VenueCategory[] = [
-    { id: 1, name: 'Banquet Hall' },
-    { id: 2, name: 'Rooftop' },
-    { id: 3, name: 'Outdoor / Garden' },
-    { id: 4, name: 'Heritage' },
-    { id: 5, name: 'Conference Centre' },
-    { id: 6, name: 'Resort' },
-    { id: 7, name: 'Club House' },
-    { id: 8, name: 'Hotel Ballroom' },
-  ];
+  readonly categories = signal<VenueCategory[]>([]);
 
   readonly amenitiesList: VenueAmenity[] = [
     { id: 'catering',    name: 'Catering Service',  desc: 'In-house food & beverage',                icon: 'M3 3h2l.4 2M7 13h10l4-4H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
@@ -66,14 +60,27 @@ export class EditVenueComponent implements OnInit {
     district:     ['', [Validators.required]],
     capacity:     ['', [Validators.required, Validators.min(1)]],
     pricePerSlot: ['', [Validators.required, Validators.min(1)]],
+    advancePercentage: ['', [Validators.required, Validators.min(0), Validators.max(100)]],
     categoryId:   ['', [Validators.required, Validators.min(1)]],
   });
 
   ngOnInit(): void {
     this.venueId = this.route.snapshot.paramMap.get('id') || '';
+
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => {
+        this.categories.set(categories);
+        const match = categories.find(c => c.name === this.pendingCategoryName);
+        if (match) this.form.patchValue({ categoryId: String(match.id) });
+      },
+      error: () => this.notification.error('Failed to load venue categories'),
+    });
+
     if (this.venueId) {
       this.venueService.loadVenueById(this.venueId).subscribe({
         next: (venue) => {
+          this.pendingCategoryName = venue.category;
+          const match = this.categories().find(c => c.name === venue.category);
           this.form.patchValue({
             name:         venue.name,
             description:  venue.description,
@@ -81,7 +88,8 @@ export class EditVenueComponent implements OnInit {
             district:     venue.district,
             capacity:     String(venue.capacity),
             pricePerSlot: String(venue.pricePerSlot),
-            categoryId:   String((venue as any).categoryId ?? ''),
+            advancePercentage: String(venue.advancePercentage ?? ''),
+            categoryId:   match ? String(match.id) : '',
           });
           this.imageUrls.set(venue.imageUrls ?? []);
           // this.selectedAmenities.set(new Set(venue.amenities ?? [])); // enable when backend ready
@@ -91,6 +99,8 @@ export class EditVenueComponent implements OnInit {
       });
     }
   }
+
+  private pendingCategoryName = '';
 
   toggleAmenity(id: string): void {
     this.selectedAmenities.update(set => {
@@ -143,6 +153,7 @@ export class EditVenueComponent implements OnInit {
         district:     raw.district,
         capacity:     Number(raw.capacity),
         pricePerSlot: Number(raw.pricePerSlot),
+        advancePercentage: raw.advancePercentage ? Number(raw.advancePercentage) : undefined,
         categoryId:   raw.categoryId ? Number(raw.categoryId) : undefined,
         imageUrls:    this.imageUrls(),
         // amenities: Array.from(this.selectedAmenities()), // enable when backend ready

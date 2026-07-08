@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthRepository } from './auth.repository';
 import { StorageService } from './storage.service';
@@ -9,6 +10,9 @@ import {
   LoginRequest,
   SignupRequest,
   ForgotPasswordRequest,
+  ResetPasswordRequest,
+  VerifyEmailRequest,
+  ResendVerificationRequest,
 } from '../models/auth-response.model';
 import { UserRole } from '../enums/user-role.enum';
 import { map, Observable } from 'rxjs';
@@ -146,9 +150,11 @@ export class AuthService {
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
       },
-      error: () => {
-        this.notification.error('Invalid credentials');
+      error: (error: HttpErrorResponse) => {
         this.loading.set(false);
+        if (error.error?.code === 'EMAIL_NOT_VERIFIED') {
+          this.router.navigate(['/verify-email'], { queryParams: { email: payload.email } });
+        }
       },
     });
   }
@@ -164,7 +170,6 @@ export class AuthService {
         this.loading.set(false);
       },
       error: () => {
-        this.notification.error('Invalid credentials');
         this.loading.set(false);
       },
     });
@@ -174,29 +179,66 @@ export class AuthService {
     this.loading.set(true);
     this.authRepository.signup(payload).subscribe({
       next: (response) => {
-        const user = this.toAuthUser(response);
-        const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
-        this.notification.success(portal === 'vendor' ? 'Vendor account created successfully' : 'Account created successfully');
-        this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
+        this.notification.success(response.message || 'Registration successful. Please verify your email.');
+        this.router.navigate(['/verify-email'], { queryParams: { email: payload.email } });
         this.loading.set(false);
       },
       error: () => {
-        this.notification.error('Signup failed. Please try again.');
         this.loading.set(false);
       },
     });
   }
 
-  forgotPassword(payload: ForgotPasswordRequest): void {
+  forgotPassword(payload: ForgotPasswordRequest, portal: 'user' | 'admin' = 'user'): void {
     this.loading.set(true);
     this.authRepository.forgotPassword(payload).subscribe({
-      next: () => {
-        this.notification.success('Password reset email sent');
+      next: (response) => {
+        this.notification.success(response.message || 'Password reset OTP sent');
+        this.router.navigate(['/reset-password'], { queryParams: { email: payload.email, portal } });
         this.loading.set(false);
       },
       error: () => {
-        this.notification.error('Failed to send reset email');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  resetPassword(payload: ResetPasswordRequest, portal: 'user' | 'admin' = 'user'): void {
+    this.loading.set(true);
+    this.authRepository.resetPassword(payload).subscribe({
+      next: (response) => {
+        this.notification.success(response.message || 'Password reset successful');
+        this.router.navigate([portal === 'admin' ? '/admin/login' : '/login']);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
+
+  verifyEmail(payload: VerifyEmailRequest): void {
+    this.loading.set(true);
+    this.authRepository.verifyEmail(payload).subscribe({
+      next: () => {
+        this.notification.success('Email verified successfully. Please sign in.');
+        this.router.navigate(['/login']);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+      },
+    });
+  }
+
+  resendVerification(payload: ResendVerificationRequest): void {
+    this.loading.set(true);
+    this.authRepository.resendVerification(payload).subscribe({
+      next: () => {
+        this.notification.success('Verification email sent');
+        this.loading.set(false);
+      },
+      error: () => {
         this.loading.set(false);
       },
     });

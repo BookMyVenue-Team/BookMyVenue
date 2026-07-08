@@ -18,7 +18,7 @@ export class ForgotPasswordComponent {
   readonly form = this.fb.nonNullable.group({ email: ['', [Validators.required, Validators.email]] });
 
   onSubmit(): void {
-    if (this.form.valid) { this.authService.forgotPassword(this.form.getRawValue()); }
+    if (this.form.valid) { this.authService.forgotPassword(this.form.getRawValue(), 'admin'); }
     else { this.form.markAllAsTouched(); }
   }
 }

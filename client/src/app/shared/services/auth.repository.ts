@@ -9,9 +9,11 @@ import {
   SignupRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  VerifyEmailRequest,
+  ResendVerificationRequest,
+  MessageResponse,
   RefreshTokenApiResponse,
 } from '../models/auth-response.model';
-import { ApiResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthRepository {
@@ -32,7 +34,7 @@ export class AuthRepository {
     );
   }
 
-signup(payload: SignupRequest): Observable<AuthResponse> {
+signup(payload: SignupRequest): Observable<MessageResponse> {
   const body = {
     name: `${payload.firstName} ${payload.lastName}`.trim(),
     email: payload.email,
@@ -40,7 +42,7 @@ signup(payload: SignupRequest): Observable<AuthResponse> {
     password: payload.password,
     role: payload.isVendor ? 'VENDOR' : 'USER',
   };
-  return this.http.post<AuthResponse>(
+  return this.http.post<MessageResponse>(
     `${this.apiUrl}${API_ENDPOINTS.AUTH.SIGNUP}`,
     body
   );
@@ -61,16 +63,30 @@ signup(payload: SignupRequest): Observable<AuthResponse> {
     );
   }
 
-  forgotPassword(payload: ForgotPasswordRequest): Observable<ApiResponse<null>> {
-    return this.http.post<ApiResponse<null>>(
+  forgotPassword(payload: ForgotPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
       payload
     );
   }
 
-  resetPassword(payload: ResetPasswordRequest): Observable<ApiResponse<null>> {
-    return this.http.post<ApiResponse<null>>(
+  resetPassword(payload: ResetPasswordRequest): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
+      payload
+    );
+  }
+
+  verifyEmail(payload: VerifyEmailRequest): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`,
+      payload
+    );
+  }
+
+  resendVerification(payload: ResendVerificationRequest): Observable<void> {
+    return this.http.post<void>(
+      `${this.apiUrl}${API_ENDPOINTS.AUTH.RESEND_VERIFICATION}`,
       payload
     );
   }

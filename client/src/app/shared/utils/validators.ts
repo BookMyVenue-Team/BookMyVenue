@@ -35,4 +35,15 @@ export class AppValidators {
     today.setHours(0, 0, 0, 0);
     return selectedDate >= today ? null : { futureDate: true };
   }
+
+  static strongPassword(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+    const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,100}$/;
+    return pattern.test(control.value) ? null : { strongPassword: true };
+  }
+
+  static otp(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) return null;
+    return /^\d{6}$/.test(control.value) ? null : { otp: true };
+  }
 }

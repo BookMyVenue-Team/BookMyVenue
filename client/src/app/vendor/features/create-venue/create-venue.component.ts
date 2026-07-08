@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { VenueService } from '../../services/venue.service';
@@ -6,9 +6,10 @@ import { ButtonComponent } from '../../../shared/components/button/button.compon
 import { InputComponent } from '../../../shared/components/input/input.component';
 import { CloudinaryService } from '../../../shared/services/cloudinary.service';
 import { NotificationService } from '../../../shared/services/notification.service';
+import { CategoryService } from '../../../shared/services/category.service';
+import { VenueCategory } from '../../../shared/models/venue.model';
 import { forkJoin } from 'rxjs';
 
-export interface VenueCategory { id: number; name: string; }
 export interface VenueAmenity  { id: string; name: string; desc: string; icon: string; }
 
 @Component({
@@ -18,12 +19,13 @@ export interface VenueAmenity  { id: string; name: string; desc: string; icon: s
   templateUrl: './create-venue.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CreateVenueComponent {
-  private readonly fb           = inject(FormBuilder);
-  private readonly venueService = inject(VenueService);
-  private readonly cloudinary   = inject(CloudinaryService);
-  private readonly notification = inject(NotificationService);
-  readonly router               = inject(Router);
+export class CreateVenueComponent implements OnInit {
+  private readonly fb              = inject(FormBuilder);
+  private readonly venueService    = inject(VenueService);
+  private readonly cloudinary      = inject(CloudinaryService);
+  private readonly notification    = inject(NotificationService);
+  private readonly categoryService = inject(CategoryService);
+  readonly router                  = inject(Router);
 
   readonly saving    = signal(false);
   readonly uploading = signal(false);
@@ -31,16 +33,14 @@ export class CreateVenueComponent {
   readonly selectedAmenities = signal<Set<string>>(new Set());
   readonly dragOver  = signal(false);
 
-  readonly categories: VenueCategory[] = [
-    { id: 1, name: 'Banquet Hall' },
-    { id: 2, name: 'Rooftop' },
-    { id: 3, name: 'Outdoor / Garden' },
-    { id: 4, name: 'Heritage' },
-    { id: 5, name: 'Conference Centre' },
-    { id: 6, name: 'Resort' },
-    { id: 7, name: 'Club House' },
-    { id: 8, name: 'Hotel Ballroom' },
-  ];
+  readonly categories = signal<VenueCategory[]>([]);
+
+  ngOnInit(): void {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => this.categories.set(categories),
+      error: () => this.notification.error('Failed to load venue categories'),
+    });
+  }
 
   readonly amenitiesList: VenueAmenity[] = [
     { id: 'catering',     name: 'Catering Service',   desc: 'In-house food & beverage',           icon: 'M3 3h2l.4 2M7 13h10l4-4H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z' },
@@ -64,6 +64,7 @@ export class CreateVenueComponent {
     district:    ['', [Validators.required]],
     capacity:    ['', [Validators.required, Validators.min(1)]],
     pricePerSlot:['', [Validators.required, Validators.min(1)]],
+    advancePercentage: ['', [Validators.required, Validators.min(0), Validators.max(100)]],
     categoryId:  ['', [Validators.required, Validators.min(1)]],
   });
 
@@ -118,6 +119,7 @@ export class CreateVenueComponent {
         district:     raw.district,
         capacity:     Number(raw.capacity),
         pricePerSlot: Number(raw.pricePerSlot),
+        advancePercentage: Number(raw.advancePercentage),
         categoryId:   Number(raw.categoryId),
         imageUrls:    this.imageUrls(),
         // amenities: Array.from(this.selectedAmenities()), // add when backend supports it

@@ -1,12 +1,17 @@
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    SIGNUP: '/auth/register',
-    LOGOUT: '/auth/logout',
-    REFRESH_TOKEN: '/auth/refresh-token',
-    FORGOT_PASSWORD: '/auth/forgot-password',
-    RESET_PASSWORD: '/auth/reset-password',
-    ADMIN_LOGIN: '/auth/login',
+    LOGIN: '/v1/auth/login',
+    SIGNUP: '/v1/auth/register',
+    LOGOUT: '/v1/auth/logout',
+    REFRESH_TOKEN: '/v1/auth/refresh-token',
+    FORGOT_PASSWORD: '/v1/auth/forgot-password',
+    RESET_PASSWORD: '/v1/auth/reset-password',
+    VERIFY_EMAIL: '/v1/auth/verify-email',
+    RESEND_VERIFICATION: '/v1/auth/resend-verification',
+    ADMIN_LOGIN: '/v1/auth/login',
+  },
+  CATEGORIES: {
+    BASE: '/v1/categories',
   },
   USERS: {
     BASE: '/v1/users',
