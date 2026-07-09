@@ -12,10 +12,12 @@ import {
   ForgotPasswordRequest,
   ResetPasswordRequest,
   VerifyEmailRequest,
-  ResendVerificationRequest,
+  ResendOtpRequest,
+  MessageResponse,
 } from '../models/auth-response.model';
 import { UserRole } from '../enums/user-role.enum';
-import { map, Observable } from 'rxjs';
+import { AUTH_ERRORS } from '../constants/auth-errors.constant';
+import { finalize, map, tap, Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,6 +29,7 @@ export class AuthService {
   readonly userSession = signal<AuthUser | null>(null);
   readonly vendorSession = signal<AuthUser | null>(null);
   readonly adminSession = signal<AuthUser | null>(null);
+  readonly pendingVerificationEmail = signal<string | null>(null);
 
   readonly currentUser = computed(() => {
     const portal = this.detectPortal();
@@ -51,9 +54,10 @@ export class AuthService {
   }
 
   private detectPortal(): string {
-    const url = this.router.url || window.location.pathname;
-    if (url.startsWith('/admin')) return 'admin';
-    if (url.startsWith('/vendor')) return 'vendor';
+    const url = window.location.pathname || '';
+    const routerUrl = this.router.url || '';
+    if (url.startsWith('/admin') || routerUrl.startsWith('/admin')) return 'admin';
+    if (url.startsWith('/vendor') || routerUrl.startsWith('/vendor')) return 'vendor';
     return 'user';
   }
 
@@ -93,6 +97,7 @@ export class AuthService {
     this.storage.remove(keys.token);
     this.storage.remove(keys.refresh);
     this.storage.remove(keys.user);
+    this.storage.remove('accessToken');
 
     if (portal === 'admin') this.adminSession.set(null);
     else if (portal === 'vendor') this.vendorSession.set(null);
@@ -145,16 +150,22 @@ export class AuthService {
       next: (response) => {
         const user = this.toAuthUser(response);
         const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
-        this.savePortalSession(portal, response.accessToken || '', response.refreshToken || '', user);
+        // Tokens are set via httpOnly cookie by the server; local copies (if any) live in storage.
+        const token = this.storage.get('accessToken') || '';
+        const refreshToken = this.storage.get('refreshToken') || '';
+        this.savePortalSession(portal, token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
         this.loading.set(false);
       },
       error: (error: HttpErrorResponse) => {
         this.loading.set(false);
-        if (error.error?.code === 'EMAIL_NOT_VERIFIED') {
-          this.router.navigate(['/verify-email'], { queryParams: { email: payload.email } });
+        if (error.status === 403 && error.error?.code === AUTH_ERRORS.EMAIL_NOT_VERIFIED) {
+          this.pendingVerificationEmail.set(payload.email);
+          this.notification.error('Please verify your email first');
+          return;
         }
+        this.notification.error(error.error?.message || 'Invalid credentials');
       },
     });
   }
@@ -164,84 +175,75 @@ export class AuthService {
     this.authRepository.adminLogin(payload).subscribe({
       next: (response) => {
         const user = this.toAuthUser(response);
-        this.savePortalSession('admin', response.accessToken || '', response.refreshToken || '', user);
+        const token = this.storage.get('accessToken') || '';
+        const refreshToken = this.storage.get('refreshToken') || '';
+        this.savePortalSession('admin', token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
         this.loading.set(false);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.loading.set(false);
+        if (error.status === 403 && error.error?.code === AUTH_ERRORS.EMAIL_NOT_VERIFIED) {
+          this.pendingVerificationEmail.set(payload.email);
+          this.notification.error('Please verify your email first');
+          return;
+        }
+        this.notification.error(error.error?.message || 'Invalid credentials');
       },
     });
   }
 
-  signup(payload: SignupRequest): void {
+  signup(payload: SignupRequest): Observable<MessageResponse> {
     this.loading.set(true);
-    this.authRepository.signup(payload).subscribe({
-      next: (response) => {
+    return this.authRepository.signup(payload).pipe(
+      tap((response) => {
         this.notification.success(response.message || 'Registration successful. Please verify your email.');
-        this.router.navigate(['/verify-email'], { queryParams: { email: payload.email } });
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      },
-    });
+      }),
+      finalize(() => this.loading.set(false))
+    );
   }
 
-  forgotPassword(payload: ForgotPasswordRequest, portal: 'user' | 'admin' = 'user'): void {
+  forgotPassword(payload: ForgotPasswordRequest, onSuccess?: () => void): void {
     this.loading.set(true);
     this.authRepository.forgotPassword(payload).subscribe({
-      next: (response) => {
-        this.notification.success(response.message || 'Password reset OTP sent');
-        this.router.navigate(['/reset-password'], { queryParams: { email: payload.email, portal } });
+      next: () => {
+        this.notification.success('OTP sent to your email');
         this.loading.set(false);
+        onSuccess?.();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
+        this.notification.error(error.error?.message || 'Failed to send OTP');
         this.loading.set(false);
       },
     });
   }
 
-  resetPassword(payload: ResetPasswordRequest, portal: 'user' | 'admin' = 'user'): void {
+  resetPassword(payload: ResetPasswordRequest, onSuccess?: () => void): void {
     this.loading.set(true);
     this.authRepository.resetPassword(payload).subscribe({
-      next: (response) => {
-        this.notification.success(response.message || 'Password reset successful');
-        this.router.navigate([portal === 'admin' ? '/admin/login' : '/login']);
+      next: () => {
+        this.notification.success('Password reset successful');
         this.loading.set(false);
+        onSuccess?.();
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
+        this.notification.error(error.error?.message || 'Failed to reset password');
         this.loading.set(false);
       },
     });
   }
 
-  verifyEmail(payload: VerifyEmailRequest): void {
-    this.loading.set(true);
-    this.authRepository.verifyEmail(payload).subscribe({
-      next: () => {
-        this.notification.success('Email verified successfully. Please sign in.');
-        this.router.navigate(['/login']);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      },
-    });
+  verifyEmail(payload: VerifyEmailRequest): Observable<void> {
+    return this.authRepository.verifyEmail(payload);
   }
 
-  resendVerification(payload: ResendVerificationRequest): void {
-    this.loading.set(true);
-    this.authRepository.resendVerification(payload).subscribe({
-      next: () => {
-        this.notification.success('Verification email sent');
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      },
-    });
+  resendOtp(payload: ResendOtpRequest): Observable<void> {
+    return this.authRepository.resendOtp(payload);
+  }
+
+  clearPendingVerification(): void {
+    this.pendingVerificationEmail.set(null);
   }
 
   logout(): void {
@@ -259,16 +261,15 @@ export class AuthService {
     });
   }
 
-refreshToken(): Observable<void> {
-  return this.authRepository.refreshToken().pipe(
-    map(() => void 0)
-  );
-}
+  refreshToken(): Observable<void> {
+    return this.authRepository.refreshToken().pipe(
+      map(() => void 0)
+    );
+  }
 
-handleLogout(): void {
-  const portal = this.detectPortal();
-  this.clearPortalSession(portal);
-  this.router.navigate(['/login']);
-}
-
+  handleLogout(): void {
+    const portal = this.detectPortal();
+    this.clearPortalSession(portal);
+    this.router.navigate(['/login']);
+  }
 }

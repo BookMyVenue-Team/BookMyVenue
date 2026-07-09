@@ -26,8 +26,8 @@ export const API_ENDPOINTS = {
   },
   VENUES: {
     // Public endpoints (no auth required)
-    PUBLIC_BASE:'/v1/venues',
-    PUBLIC_BY_ID:(id:string) =>   `/v1/venues/${id}`,
+    PUBLIC_BASE: '/v1/venues',
+    PUBLIC_BY_ID: (id: string) => `/v1/venues/${id}`,
     AVAILABILITY: (venueId: string) => `/v1/venues/${venueId}/availability`,
 
     // Vendor endpoints (require VENDOR role)
@@ -44,9 +44,9 @@ export const API_ENDPOINTS = {
     BY_VENUE: (venueId: string) => `/venues/${venueId}/bookings`,
     BY_VENDOR: '/vendor/bookings',
     MY_BOOKINGS: '/v1/bookings/my-bookings',
-    CREATE_WITH_SLOT:(venueId: string, slotId: number) => `/v1/venues/${venueId}/slots/${slotId}/bookings`,
-    CANCEL:(bookingId: string) => `/v1/bookings/${bookingId}/cancel`,
-    
+    CREATE_WITH_SLOT: (venueId: string, slotId: number) => `/v1/venues/${venueId}/slots/${slotId}/bookings`,
+    CANCEL: (bookingId: string) => `/v1/bookings/${bookingId}/cancel`,
+
   },
   ADMIN: {
     DASHBOARD: '/v1/admin/dashboard',
@@ -55,12 +55,12 @@ export const API_ENDPOINTS = {
     VENUES: '/v1/admin/venues',
     PENDING_VENUES: '/v1/admin/venues/pending',
     VENUE_APPROVE: (id: number) => `/v1/admin/venues/${id}/approve`,
-    VENUE_REJECT:  (id: number) => `/v1/admin/venues/${id}/reject`,
+    VENUE_REJECT: (id: number) => `/v1/admin/venues/${id}/reject`,
     BOOKINGS: '/v1/admin/bookings',
     ANALYTICS: '/v1/admin/analytics',
   },
   PAYMENTS: {
-  CREATE: (bookingId: number) => `/v1/payments/${bookingId}`,
-  VERIFY: '/v1/payments/verify',
+    CREATE: (bookingId: number) => `/v1/payments/${bookingId}`,
+    VERIFY: '/v1/payments/verify',
   },
 } as const;

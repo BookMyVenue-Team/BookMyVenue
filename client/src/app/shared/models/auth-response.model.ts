@@ -43,7 +43,7 @@ export interface VerifyEmailRequest {
   otp: string;
 }
 
-export interface ResendVerificationRequest {
+export interface ResendOtpRequest {
   email: string;
 }
 

@@ -60,6 +60,17 @@
         </div>
 
         <app-button label="Sign In to Admin" type="submit" [loading]="loading()" [fullWidth]="true" />
+
+        @if (showVerifyButton()) {
+          <app-button
+            label="Verify Email"
+            type="button"
+            (clicked)="onVerify()"
+            [fullWidth]="true"
+            variant="outline"
+            class="mt-3"
+          />
+        }
       </form>
     </div>
 

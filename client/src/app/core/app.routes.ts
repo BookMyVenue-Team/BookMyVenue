@@ -24,14 +24,14 @@ export const routes: Routes = [
     loadComponent: () => import('../user/features/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent),
   },
   {
-    path: 'verify-email',
-    canActivate: [guestGuard],
-    loadComponent: () => import('../user/features/verify-email/verify-email.component').then(m => m.VerifyEmailComponent),
-  },
-  {
     path: 'reset-password',
     canActivate: [guestGuard],
     loadComponent: () => import('../user/features/reset-password/reset-password.component').then(m => m.ResetPasswordComponent),
+  },
+  {
+    path: 'verify-email',
+    canActivate: [guestGuard],
+    loadComponent: () => import('../shared/features/verify-email/verify-email.component').then(m => m.VerifyEmailComponent),
   },
   {
     path: ROUTE_PATHS.USER.BASE,
