@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../shared/services/auth.service';
 import { ButtonComponent } from '../../../shared/components/button/button.component';
 import { InputComponent } from '../../../shared/components/input/input.component';
+import { AppValidators } from '../../../shared/utils/validators';
 
 @Component({
   selector: 'app-user-reset-password',
@@ -15,26 +16,22 @@ import { InputComponent } from '../../../shared/components/input/input.component
 })
 export class ResetPasswordComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   readonly loading = this.authService.loading;
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    otp: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]],
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', [Validators.required]],
+    otp: ['', [Validators.required, AppValidators.otp]],
+    newPassword: ['', [Validators.required, AppValidators.strongPassword]],
+    confirmPassword: ['', [Validators.required, AppValidators.matchField('newPassword')]],
   });
 
   onSubmit(): void {
     if (this.form.valid) {
-      const { email, otp, newPassword, confirmPassword } = this.form.getRawValue();
-      if (newPassword !== confirmPassword) {
-        this.form.controls.confirmPassword.setErrors({ mismatch: true });
-        return;
-      }
-      this.authService.resetPassword({ email, otp, newPassword }, () => {
+      const { confirmPassword, ...payload } = this.form.getRawValue();
+      this.authService.resetPassword(payload, () => {
         this.router.navigate(['/login']);
       });
     } else {

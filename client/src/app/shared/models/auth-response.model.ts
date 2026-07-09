@@ -5,8 +5,6 @@ export interface AuthResponse {
   role: string;
   accessToken?: string;
   refreshToken?: string;
-  emailVerified?: boolean;
-  requiresVerification?: boolean;
 }
 
 export interface AuthUser {
@@ -40,18 +38,6 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
-export interface RefreshTokenApiResponse {
-  userId: string;
-  name: string;
-  email: string;
-  role: string;
-  accessToken: string;
-  refreshToken: string;
-  emailVerified?: boolean;
-  requiresVerification?: boolean;
-}
-
-// Phase 2: OTP Email Verification
 export interface VerifyEmailRequest {
   email: string;
   otp: string;
@@ -61,8 +47,15 @@ export interface ResendOtpRequest {
   email: string;
 }
 
-export interface OtpResponse {
-  success: boolean;
+export interface MessageResponse {
   message: string;
-  expiresIn?: number;
+}
+
+export interface RefreshTokenApiResponse {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
+  accessToken: string;
+  refreshToken: string;
 }

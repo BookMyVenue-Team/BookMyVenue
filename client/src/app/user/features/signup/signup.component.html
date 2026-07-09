@@ -130,10 +130,10 @@
           <app-input
             label="Password"
             type="password"
-            placeholder="Min. 6 characters"
+            placeholder="Min. 8 characters"
             formControlName="password"
             [required]="true"
-            [error]="form.controls.password.touched && form.controls.password.errors ? 'Min. 6 characters required' : ''"
+            [error]="form.controls.password.touched && form.controls.password.errors ? 'Min. 8 characters with uppercase, lowercase, number & special character' : ''"
           />
 
           <app-input
