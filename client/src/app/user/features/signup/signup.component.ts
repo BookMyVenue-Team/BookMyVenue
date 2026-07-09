@@ -28,7 +28,7 @@ export class SignupComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.required, AppValidators.phone]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    password: ['', [Validators.required, AppValidators.strongPassword]],
     confirmPassword: ['', [Validators.required, AppValidators.matchField('password')]],
     isVendor: [false],
   });

@@ -14,6 +14,12 @@ export interface Venue {
   imageUrls?: string[];
 }
 
+export interface VenueCategory {
+  id: number;
+  name: string;
+  description?: string;
+}
+
 export interface CreateVenueRequest {
   name: string;
   description: string;
