@@ -42,8 +42,7 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/bookings/${id}`,
     BY_USER: (userId: string) => `/users/${userId}/bookings`,
     BY_VENUE: (venueId: string) => `/venues/${venueId}/bookings`,
-    // NOTE: Backend endpoint not available - do not use
-    BY_VENDOR: null as string | null,
+    BY_VENDOR: '/v1/vendor/bookings',
     MY_BOOKINGS: '/v1/bookings/my-bookings',
     CREATE_WITH_SLOT: (venueId: string, slotId: number) => `/v1/venues/${venueId}/slots/${slotId}/bookings`,
     CANCEL: (bookingId: string) => `/v1/bookings/${bookingId}/cancel`,
