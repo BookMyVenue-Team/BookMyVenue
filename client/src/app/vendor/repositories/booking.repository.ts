@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../core/config/environment';
-import { API_ENDPOINTS } from '../../shared/constants/api-endpoints.constant';
 import { Booking } from '../../shared/models/booking.model';
 import { ApiResponse, PaginationResponse } from '../../shared/models/api-response.model';
 
@@ -12,10 +11,20 @@ export class VendorBookingRepository {
   private readonly apiUrl = environment.apiUrl;
 
   getVendorBookings(): Observable<PaginationResponse<Booking>> {
-    return this.http.get<PaginationResponse<Booking>>(`${this.apiUrl}${API_ENDPOINTS.BOOKINGS.BY_VENDOR}`);
+    // Backend endpoint not available - do not use
+    // Returning empty data until backend implements vendor bookings endpoint
+    return of({
+      success: false,
+      data: [],
+      page: 1,
+      limit: 10,
+      total: 0,
+      totalPages: 0,
+    });
   }
 
   updateBookingStatus(id: string, status: string): Observable<ApiResponse<Booking>> {
-    return this.http.patch<ApiResponse<Booking>>(`${this.apiUrl}${API_ENDPOINTS.BOOKINGS.BY_ID(id)}`, { status });
+    const byIdEndpoint = `/bookings/${id}`;
+    return this.http.patch<ApiResponse<Booking>>(`${this.apiUrl}${byIdEndpoint}`, { status });
   }
 }

@@ -149,13 +149,25 @@ export class AuthService {
     this.authRepository.login(payload).subscribe({
       next: (response) => {
         const user = this.toAuthUser(response);
-        const portal = response.role === UserRole.Vendor ? 'vendor' : 'user';
+        // Check role and route to appropriate portal
+        let portal: string;
+        let redirectUrl: string[];
+        if (response.role === UserRole.Admin) {
+          portal = 'admin';
+          redirectUrl = ['/admin/dashboard'];
+        } else if (response.role === UserRole.Vendor) {
+          portal = 'vendor';
+          redirectUrl = ['/vendor/dashboard'];
+        } else {
+          portal = 'user';
+          redirectUrl = ['/user/venues'];
+        }
         // Tokens are set via httpOnly cookie by the server; local copies (if any) live in storage.
         const token = this.storage.get('accessToken') || '';
         const refreshToken = this.storage.get('refreshToken') || '';
         this.savePortalSession(portal, token, refreshToken, user);
         this.notification.success('Login successful');
-        this.router.navigate(portal === 'vendor' ? ['/vendor/dashboard'] : ['/user/venues']);
+        this.router.navigate(redirectUrl);
         this.loading.set(false);
       },
       error: (error: HttpErrorResponse) => {
