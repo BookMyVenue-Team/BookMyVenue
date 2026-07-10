@@ -2,11 +2,13 @@ package com.bookmyvenue.server.booking.controller;
 
 import com.bookmyvenue.server.booking.dto.request.BookingRequest;
 import com.bookmyvenue.server.booking.dto.response.BookingResponse;
+import com.bookmyvenue.server.booking.enums.BookingStatus;
 import com.bookmyvenue.server.booking.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,5 +57,16 @@ public class BookingController {
         bookingService.cancelBooking(
                 bookingId
         );
+    }
+
+    @GetMapping("vendor/bookings")
+    @PreAuthorize("hasRole('VENDOR')")
+    @Operation(summary = "Get all bookings for vendor")
+    @ResponseStatus(HttpStatus.OK)
+    public List<BookingResponse> getVendorBookings(
+            @RequestParam(required = false) BookingStatus status,
+            @RequestParam(required = false) Long venueId
+    ) {
+        return bookingService.getVendorBookings(status, venueId);
     }
 }
