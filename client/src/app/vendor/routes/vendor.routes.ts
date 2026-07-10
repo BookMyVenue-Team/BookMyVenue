@@ -13,6 +13,7 @@ export const VENDOR_ROUTES: Routes = [
     children: [
       { path: ROUTE_PATHS.VENDOR.DASHBOARD, loadComponent: () => import('../features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: ROUTE_PATHS.VENDOR.VENUES, loadComponent: () => import('../features/venue-list/venue-list.component').then(m => m.VenueListComponent) },
+      { path: ROUTE_PATHS.VENDOR.BOOKINGS, loadComponent: () => import('../features/bookings/bookings.component').then(m => m.BookingsComponent) },
       { path: ROUTE_PATHS.VENDOR.CREATE_VENUE, loadComponent: () => import('../features/create-venue/create-venue.component').then(m => m.CreateVenueComponent) },
       { path: ROUTE_PATHS.VENDOR.EDIT_VENUE, loadComponent: () => import('../features/edit-venue/edit-venue.component').then(m => m.EditVenueComponent) },
       { path: ROUTE_PATHS.VENDOR.SETTINGS, loadComponent: () => import('../features/settings/settings.component').then(m => m.SettingsComponent) },

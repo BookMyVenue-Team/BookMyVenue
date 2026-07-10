@@ -33,6 +33,6 @@ export class BookingsComponent implements OnInit {
   }
 
   onReject(id: number): void {
-    this.bookingService.updateBookingStatus(id, 'rejected');
+    this.bookingService.updateBookingStatus(id, 'cancelled');
   }
 }
