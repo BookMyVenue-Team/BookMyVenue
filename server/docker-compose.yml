@@ -30,7 +30,7 @@ services:
       - postgres
       - redis
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://dpg-d95u02ojs32c738dtqn0-a.singapore-postgres.render.com:5432/bookmyvenue_m6o5
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 

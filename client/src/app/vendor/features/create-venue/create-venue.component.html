@@ -207,54 +207,6 @@
     </div>
 
     <!-- ── 5. Amenities ── -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-        <div class="w-7 h-7 rounded-full bg-brand-500 flex items-center justify-center shrink-0">
-          <span class="text-xs font-bold text-white">5</span>
-        </div>
-        <h2 class="font-heading font-bold text-gray-900">Available Amenities</h2>
-        <span class="ml-auto text-xs text-gray-400">{{ selectedAmenities().size }} selected</span>
-      </div>
-      <div class="px-6 py-5">
-        <p class="text-xs text-gray-400 mb-4">Select all amenities your venue provides to guests</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          @for (amenity of amenitiesList; track amenity.id) {
-            <button
-              type="button"
-              (click)="toggleAmenity(amenity.id)"
-              class="text-left p-3.5 rounded-xl border-2 transition-all cursor-pointer"
-              [class]="isAmenitySelected(amenity.id)
-                ? 'border-accent-500 bg-amber-50/60'
-                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'"
-            >
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-                  [class]="isAmenitySelected(amenity.id) ? 'bg-accent-500' : 'bg-gray-100'">
-                  <svg class="w-4 h-4 transition-colors"
-                    [class]="isAmenitySelected(amenity.id) ? 'text-white' : 'text-gray-500'"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" [attr.d]="amenity.icon"/>
-                  </svg>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p class="text-sm font-semibold text-gray-900">{{ amenity.name }}</p>
-                  <p class="text-xs text-gray-400 truncate">{{ amenity.desc }}</p>
-                </div>
-                <div class="w-4 h-4 rounded border-2 shrink-0 flex items-center justify-center transition-all"
-                  [class]="isAmenitySelected(amenity.id) ? 'border-accent-500 bg-accent-500' : 'border-gray-300'">
-                  @if (isAmenitySelected(amenity.id)) {
-                    <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                    </svg>
-                  }
-                </div>
-              </div>
-            </button>
-          }
-        </div>
-      </div>
-    </div>
-
     <!-- Bottom actions -->
     <div class="flex justify-end gap-3 pb-8">
       <app-button label="Cancel" variant="outline" (clicked)="router.navigate(['/vendor/venues'])" />

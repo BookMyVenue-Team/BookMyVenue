@@ -20,6 +20,10 @@ export const guestGuard: CanActivateFn = (route) => {
       return false;
     }
   } else {
+    if (authService.isPortalAuthenticated(UserRole.Admin)) {
+      router.navigate(['/admin/dashboard']);
+      return false;
+    }
     if (authService.isPortalAuthenticated(UserRole.Vendor)) {
       router.navigate(['/vendor/dashboard']);
       return false;

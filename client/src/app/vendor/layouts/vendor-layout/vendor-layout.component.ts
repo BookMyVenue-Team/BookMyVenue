@@ -20,8 +20,6 @@ export class VendorLayoutComponent {
   readonly navItems = [
     { label: 'Dashboard', path: '/vendor/dashboard', icon: 'dashboard' },
     { label: 'My Venues', path: '/vendor/venues', icon: 'venues' },
-    { label: 'Bookings', path: '/vendor/bookings', icon: 'bookings' },
-    { label: 'Analytics', path: '/vendor/analytics', icon: 'analytics' },
     { label: 'Settings', path: '/vendor/settings', icon: 'settings' },
   ];
 
