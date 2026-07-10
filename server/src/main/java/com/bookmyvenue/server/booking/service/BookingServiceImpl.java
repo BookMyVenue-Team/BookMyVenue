@@ -196,6 +196,26 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    @Override
+    public List<BookingResponse> getVendorBookings(
+            BookingStatus status,
+            Long venueId
+    ) {
+
+        User vendor = authenticatedUserService.getCurrentUser();
+
+        List<Booking> bookings = bookingRepository
+                .findVendorBookings(
+                        vendor.getId(),
+                        status,
+                        venueId
+                );
+
+        return bookings.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private BookingResponse mapToResponse(
             Booking booking
     ) {
