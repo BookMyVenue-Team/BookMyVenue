@@ -139,6 +139,11 @@ public enum ErrorCode {
             "EMAIL_NOT_VERIFIED",
             "Email is not verified."
     ),
+    VENUE_CAPACITY_EXCEEDED(
+            HttpStatus.BAD_REQUEST,
+            "VENUE_CAPACITY_EXCEEDED",
+            "Requested guest count exceeds venue capacity."
+    ),
     INVALID_VENUE_STATUS(
             HttpStatus.BAD_REQUEST,
             "INVALID_VENUE_STATUS",

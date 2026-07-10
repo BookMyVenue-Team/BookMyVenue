@@ -33,6 +33,9 @@ public class Booking {
 
     private LocalDateTime expiresAt;
 
+    @Column(nullable = false)
+    private Integer guestCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

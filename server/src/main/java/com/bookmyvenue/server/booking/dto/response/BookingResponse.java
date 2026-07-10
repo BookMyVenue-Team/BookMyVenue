@@ -12,6 +12,7 @@ public record BookingResponse(
         Long slotTemplateId,
         LocalDate bookingDate,
         BookingStatus status,
+        Integer guestCount,
         BigDecimal totalAmount,
         LocalDateTime expiresAt
 ) {
