@@ -8,6 +8,7 @@ import com.bookmyvenue.server.common.exception.ErrorCode;
 import com.bookmyvenue.server.payment.config.RazorpayProperties;
 import com.bookmyvenue.server.payment.dto.request.VerifyPaymentRequest;
 import com.bookmyvenue.server.payment.dto.response.PaymentResponse;
+import com.bookmyvenue.server.payment.enums.PaymentType;
 import com.bookmyvenue.server.payment.enums.PaymentStatus;
 import com.bookmyvenue.server.payment.repository.PaymentRepository;
 import com.razorpay.Order;
@@ -62,6 +63,7 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = Payment.builder()
                 .booking(booking)
                 .amount(booking.getTotalAmount())
+                .paymentType(PaymentType.ADVANCE)
                 .status(PaymentStatus.PENDING)
                 .razorpayOrderId(
                         razorpayOrder.get("id")
