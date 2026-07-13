@@ -29,7 +29,7 @@ public class CookieUtils {
     /**
      * SameSite policy for authentication cookies.
      */
-    private static final String SAME_SITE_POLICY = "Lax";
+    private static final String SAME_SITE_POLICY = "None";
 
 
 
@@ -41,7 +41,7 @@ public class CookieUtils {
     public ResponseCookie accessTokenCookie(String token) {
         return ResponseCookie.from(ACCESS_TOKEN, token)
                 .httpOnly(true)
-                .secure(false) // Use true in production.
+                .secure(true) // Use true in production.
                 .path(COOKIE_PATH)
                 .sameSite(SAME_SITE_POLICY)
                 .maxAge(jwtProperties.getAccessTokenExpiration() / 1000)
@@ -54,7 +54,7 @@ public class CookieUtils {
     public ResponseCookie refreshTokenCookie(String token) {
         return ResponseCookie.from(REFRESH_TOKEN, token)
                 .httpOnly(true)
-                .secure(false) // Use true in production.
+                .secure(true) // Use true in production.
                 .path(COOKIE_PATH)
                 .sameSite(SAME_SITE_POLICY)
                 .maxAge(jwtProperties.getRefreshTokenExpiration() / 1000)
@@ -67,7 +67,7 @@ public class CookieUtils {
     public ResponseCookie clearAccessTokenCookie() {
         return ResponseCookie.from(ACCESS_TOKEN, "")
                 .httpOnly(true)
-                .secure(false) // Use true in production.
+                .secure(true) // Use true in production.
                 .path(COOKIE_PATH)
                 .sameSite(SAME_SITE_POLICY)
                 .maxAge(0)
@@ -80,7 +80,7 @@ public class CookieUtils {
     public ResponseCookie clearRefreshTokenCookie() {
         return ResponseCookie.from(REFRESH_TOKEN, "")
                 .httpOnly(true)
-                .secure(false) // Use true in production.
+                .secure(true) // Use true in production.
                 .path(COOKIE_PATH)
                 .sameSite(SAME_SITE_POLICY)
                 .maxAge(0)
