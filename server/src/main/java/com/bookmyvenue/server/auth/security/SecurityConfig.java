@@ -76,7 +76,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:4200","https://bookmyvenue-client.onrender.com"));
+        config.setAllowedOrigins(List.of("https://bookmyvenue-client.onrender.com"));
         config.setAllowedMethods(List.of(
                         "GET",
                         "POST",
