@@ -119,7 +119,7 @@ public class VenueServiceImpl implements VenueService {
         } else if (district != null && categoryId != null) {
 
             venues = venueRepository
-                    .findByStatusAndDistrictIgnoreCaseAndCategoryId(
+                    .findByStatusAndDistrictContainingIgnoreCaseAndCategoryId(
                             VenueStatus.APPROVED,
                             district,
                             categoryId

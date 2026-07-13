@@ -59,6 +59,13 @@ public class BookingServiceImpl implements BookingService {
                                 ErrorCode.VENUE_NOT_FOUND
                         ));
 
+        if (request.guestCount() > venue.getCapacity()) {
+
+            throw new BusinessException(
+                    ErrorCode.VENUE_CAPACITY_EXCEEDED
+            );
+        }
+
         BigDecimal totalAmount = venue.getPricePerSlot();
 
         BigDecimal advanceAmount =
@@ -127,6 +134,7 @@ public class BookingServiceImpl implements BookingService {
                 .bookingDate(request.bookingDate())
                 .status(BookingStatus.PENDING)
                 .totalAmount(totalAmount)
+                .guestCount(request.guestCount())
                 .expiresAt(
                         LocalDateTime.now().plusMinutes(10)
                 )
@@ -188,6 +196,26 @@ public class BookingServiceImpl implements BookingService {
         );
     }
 
+    @Override
+    public List<BookingResponse> getVendorBookings(
+            BookingStatus status,
+            Long venueId
+    ) {
+
+        User vendor = authenticatedUserService.getCurrentUser();
+
+        List<Booking> bookings = bookingRepository
+                .findVendorBookings(
+                        vendor.getId(),
+                        status,
+                        venueId
+                );
+
+        return bookings.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
     private BookingResponse mapToResponse(
             Booking booking
     ) {
@@ -198,6 +226,7 @@ public class BookingServiceImpl implements BookingService {
                 booking.getSlotTemplate().getId(),
                 booking.getBookingDate(),
                 booking.getStatus(),
+                booking.getGuestCount(),
                 booking.getTotalAmount(),
                 booking.getExpiresAt()
         );

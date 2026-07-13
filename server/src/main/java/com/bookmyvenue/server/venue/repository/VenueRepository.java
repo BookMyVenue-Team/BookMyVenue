@@ -26,7 +26,7 @@ public interface VenueRepository extends JpaRepository<Venue,Long> {
             Long categoryId
     );
 
-    List<Venue> findByStatusAndDistrictIgnoreCaseAndCategoryId(
+    List<Venue> findByStatusAndDistrictContainingIgnoreCaseAndCategoryId(
             VenueStatus status,
             String district,
             Long categoryId

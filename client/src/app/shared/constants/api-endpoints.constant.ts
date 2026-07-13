@@ -19,10 +19,11 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/v1/users/${id}`,
   },
   VENDORS: {
-    BASE: '/vendors',
-    PROFILE: '/vendors/profile',
-    BY_ID: (id: string) => `/vendors/${id}`,
-    ANALYTICS: '/vendors/analytics',
+    // NOTE: Backend endpoints not available - do not use
+    BASE: '/v1/vendor/venues',
+    PROFILE: null as string | null,
+    BY_ID: null as ((id: string) => string) | null,
+    ANALYTICS: null as string | null,
   },
   VENUES: {
     // Public endpoints (no auth required)
@@ -31,7 +32,6 @@ export const API_ENDPOINTS = {
     AVAILABILITY: (venueId: string) => `/v1/venues/${venueId}/availability`,
 
     // Vendor endpoints (require VENDOR role)
-
     VENDOR_BASE: '/v1/vendor/venues',
     VENDOR_BY_ID: (id: string) => `/v1/vendor/venues/${id}`,
     SLOTS_BY_VENUE: (venueId: string) => `/v1/venues/${venueId}/slots`,
@@ -42,11 +42,10 @@ export const API_ENDPOINTS = {
     BY_ID: (id: string) => `/bookings/${id}`,
     BY_USER: (userId: string) => `/users/${userId}/bookings`,
     BY_VENUE: (venueId: string) => `/venues/${venueId}/bookings`,
-    BY_VENDOR: '/vendor/bookings',
+    BY_VENDOR: '/v1/vendor/bookings',
     MY_BOOKINGS: '/v1/bookings/my-bookings',
     CREATE_WITH_SLOT: (venueId: string, slotId: number) => `/v1/venues/${venueId}/slots/${slotId}/bookings`,
     CANCEL: (bookingId: string) => `/v1/bookings/${bookingId}/cancel`,
-
   },
   ADMIN: {
     DASHBOARD: '/v1/admin/dashboard',
