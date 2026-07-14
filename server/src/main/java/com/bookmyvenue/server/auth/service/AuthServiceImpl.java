@@ -106,6 +106,8 @@ public class AuthServiceImpl implements AuthService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
 
         return new AuthResult(
@@ -137,6 +139,8 @@ public class AuthServiceImpl implements AuthService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .role(user.getRole())
+            .accessToken(accessToken)
+            .refreshToken(newRefreshToken)
                 .build();
         return new AuthResult(
                 response,

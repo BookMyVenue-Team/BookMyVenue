@@ -3,10 +3,10 @@ package com.bookmyvenue.server.auth.controller;
 import com.bookmyvenue.server.auth.dto.request.ForgotPasswordRequest;
 import com.bookmyvenue.server.auth.dto.request.LoginRequest;
 import com.bookmyvenue.server.auth.dto.request.RegisterRequest;
+import com.bookmyvenue.server.auth.dto.request.RefreshTokenRequest;
 import com.bookmyvenue.server.auth.dto.request.ResetPasswordRequest;
 import com.bookmyvenue.server.auth.dto.response.AuthResponse;
 import com.bookmyvenue.server.auth.dto.response.AuthResult;
-import com.bookmyvenue.server.auth.security.CookieUtils;
 import com.bookmyvenue.server.auth.service.AuthService;
 import com.bookmyvenue.server.common.exception.BusinessException;
 import com.bookmyvenue.server.common.exception.ErrorCode;
@@ -20,9 +20,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final CookieUtils cookieUtils;
 
     @Operation(summary = "Register a new account", description = "Creates a new USER or VENDOR account and sends a verification email.")
     @ApiResponses({
@@ -64,48 +61,35 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 
         AuthResult result = authService.login(request);
-        ResponseCookie accessCookie = cookieUtils.accessTokenCookie(result.accessToken());
-        ResponseCookie refreshCookie = cookieUtils.refreshTokenCookie(result.refreshToken());
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(result.response());
+        return ResponseEntity.ok(result.response());
     }
 
 
 
-    @Operation(summary = "Refresh JWT tokens", description = "Generates new authentication cookies using a valid refresh token.")
+        @Operation(summary = "Refresh JWT tokens", description = "Generates new authentication tokens using a valid refresh token.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Tokens refreshed successfully"),
             @ApiResponse(responseCode = "401", description = "Missing, invalid or expired refresh token",
                     content = @Content(schema = @Schema(implementation = ApiErrorResponse.class)))
     })
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthResponse> refreshToken(@CookieValue(value=CookieUtils.REFRESH_TOKEN,required = false) String refreshToken) {
+        public ResponseEntity<AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
 
-        if (refreshToken == null) {
+                if (request.getRefreshToken() == null) {
             throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
-        AuthResult result = authService.refreshToken(refreshToken);
-        ResponseCookie accessCookie = cookieUtils.accessTokenCookie(result.accessToken());
-        ResponseCookie refreshCookie = cookieUtils.refreshTokenCookie(result.refreshToken());
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, accessCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
-                .body(result.response());
+                AuthResult result = authService.refreshToken(request.getRefreshToken());
+                return ResponseEntity.ok(result.response());
     }
 
 
 
 
-    @Operation(summary = "Logout user", description = "Clears authentication cookies.")
+        @Operation(summary = "Logout user", description = "Logs out the user on the client side.")
     @ApiResponse(responseCode = "204", description = "Logout successful")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, cookieUtils.clearAccessTokenCookie().toString())
-                .header(HttpHeaders.SET_COOKIE, cookieUtils.clearRefreshTokenCookie().toString())
-                .build();
+                return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Forgot password", description = "Sends a password reset OTP to the registered email address.")

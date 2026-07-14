@@ -85,8 +85,6 @@ public class SecurityConfig {
                         "DELETE",
                         "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        // Required for sending cookies
-        config.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

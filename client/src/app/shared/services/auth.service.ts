@@ -17,7 +17,7 @@ import {
 } from '../models/auth-response.model';
 import { UserRole } from '../enums/user-role.enum';
 import { AUTH_ERRORS } from '../constants/auth-errors.constant';
-import { finalize, map, tap, Observable } from 'rxjs';
+import { finalize, map, tap, Observable, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -162,9 +162,9 @@ export class AuthService {
           portal = 'user';
           redirectUrl = ['/user/venues'];
         }
-        // Tokens are set via httpOnly cookie by the server; local copies (if any) live in storage.
-        const token = this.storage.get('accessToken') || '';
-        const refreshToken = this.storage.get('refreshToken') || '';
+        // Tokens are returned in the response body
+        const token = response.accessToken || '';
+        const refreshToken = response.refreshToken || '';
         this.savePortalSession(portal, token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(redirectUrl);
@@ -187,8 +187,9 @@ export class AuthService {
     this.authRepository.adminLogin(payload).subscribe({
       next: (response) => {
         const user = this.toAuthUser(response);
-        const token = this.storage.get('accessToken') || '';
-        const refreshToken = this.storage.get('refreshToken') || '';
+        // Tokens are returned in the response body
+        const token = response.accessToken || '';
+        const refreshToken = response.refreshToken || '';
         this.savePortalSession('admin', token, refreshToken, user);
         this.notification.success('Login successful');
         this.router.navigate(['/admin/dashboard']);
@@ -274,8 +275,16 @@ export class AuthService {
   }
 
   refreshToken(): Observable<void> {
-    return this.authRepository.refreshToken().pipe(
-      map(() => void 0)
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
+    }
+    return this.authRepository.refreshToken(refreshToken).pipe(
+      map((response) => {
+        const portal = this.detectPortal();
+        const user = this.toAuthUser(response);
+        this.savePortalSession(portal, response.accessToken, response.refreshToken, user);
+      })
     );
   }
 

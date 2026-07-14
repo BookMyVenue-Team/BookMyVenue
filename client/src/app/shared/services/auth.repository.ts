@@ -13,6 +13,7 @@ import {
   ResendOtpRequest,
   MessageResponse,
   RefreshTokenApiResponse,
+  RefreshTokenRequest,
 } from '../models/auth-response.model';
 
 @Injectable({ providedIn: 'root' })
@@ -23,16 +24,14 @@ export class AuthRepository {
   login(payload: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.LOGIN}`,
-      payload,
-      { withCredentials: true }
+      payload
     );
   }
 
   adminLogin(payload: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.ADMIN_LOGIN}`,
-      payload,
-      { withCredentials: true }
+      payload
     );
   }
 
@@ -53,48 +52,43 @@ export class AuthRepository {
   logout(): Observable<void> {
     return this.http.post<void>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.LOGOUT}`,
-      {},
-      { withCredentials: true }
+      {}
     );
   }
 
-  refreshToken(): Observable<RefreshTokenApiResponse> {
+  refreshToken(refreshToken: string): Observable<RefreshTokenApiResponse> {
+    const body: RefreshTokenRequest = { refreshToken };
     return this.http.post<RefreshTokenApiResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.REFRESH_TOKEN}`,
-      {},
-      { withCredentials: true }
+      body
     );
   }
 
   forgotPassword(payload: ForgotPasswordRequest): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.FORGOT_PASSWORD}`,
-      payload,
-      { withCredentials: true }
+      payload
     );
   }
 
   resetPassword(payload: ResetPasswordRequest): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.RESET_PASSWORD}`,
-      payload,
-      { withCredentials: true }
+      payload
     );
   }
 
   verifyEmail(payload: VerifyEmailRequest): Observable<void> {
     return this.http.post<void>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.VERIFY_EMAIL}`,
-      payload,
-      { withCredentials: true }
+      payload
     );
   }
 
   resendOtp(payload: ResendOtpRequest): Observable<void> {
     return this.http.post<void>(
       `${this.apiUrl}${API_ENDPOINTS.AUTH.RESEND_VERIFICATION}`,
-      payload,
-      { withCredentials: true }
+      payload
     );
   }
 }

@@ -3,8 +3,8 @@ export interface AuthResponse {
   name: string;
   email: string;
   role: string;
-  accessToken?: string;
-  refreshToken?: string;
+  accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthUser {
@@ -57,5 +57,9 @@ export interface RefreshTokenApiResponse {
   email: string;
   role: string;
   accessToken: string;
+  refreshToken: string;
+}
+
+export interface RefreshTokenRequest {
   refreshToken: string;
 }
